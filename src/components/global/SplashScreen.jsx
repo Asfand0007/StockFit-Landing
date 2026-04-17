@@ -30,15 +30,17 @@ export default function SplashScreen({ onFinish }) {
           {/* ── Ambient glow blobs ── */}
           <motion.div
             className="absolute h-[500px] w-[500px] rounded-full bg-primary opacity-15 blur-[140px]"
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1.2, opacity: 0.18 }}
-            transition={{ duration: 2, ease: 'easeOut' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.18 }}
+            transition={{ duration: 1.5, ease: 'easeOut' }}
+            style={{ willChange: "opacity" }}
           />
           <motion.div
             className="absolute h-[300px] w-[300px] rounded-full bg-[#374a46] opacity-20 blur-[100px] -translate-x-40 translate-y-20"
-            initial={{ scale: 0.4, opacity: 0 }}
-            animate={{ scale: 1, opacity: 0.25 }}
-            transition={{ duration: 2.2, ease: 'easeOut', delay: 0.2 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.25 }}
+            transition={{ duration: 1.5, ease: 'easeOut', delay: 0.2 }}
+            style={{ willChange: "opacity" }}
           />
 
           {/* ── Orbiting ring of dots ── */}
@@ -87,13 +89,9 @@ export default function SplashScreen({ onFinish }) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
           >
-            <motion.div
-              className="h-24 w-24 rounded-full bg-[#374a4652] backdrop-blur-xl border border-primary/20 flex items-center justify-center shadow-2xl"
-              animate={{ boxShadow: ['0 0 0px 0px #69b39d30', '0 0 40px 12px #69b39d40', '0 0 0px 0px #69b39d30'] }}
-              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-            >
-              <img src="assests/Stockfit-logo.png" alt="StockFit" className="h-14 w-14 object-contain" />
-            </motion.div>
+            <div className="h-24 w-24 rounded-full bg-[#374a4652] backdrop-blur-xl border border-primary/20 flex items-center justify-center shadow-2xl relative">
+              <img src="assests/Stockfit-logo.png" alt="StockFit" className="h-14 w-14 object-contain relative z-10" />
+            </div>
 
             {/* Brand name */}
             <div className="overflow-hidden">
@@ -118,14 +116,14 @@ export default function SplashScreen({ onFinish }) {
             </motion.p>
 
             {/* Loading bar */}
-            <motion.div className="w-36 h-0.5 bg-white/10 rounded-full overflow-hidden mt-2">
+            <div className="w-36 h-0.5 bg-white/10 rounded-full overflow-hidden mt-2 relative">
               <motion.div
-                className="h-full bg-primary rounded-full"
-                initial={{ width: '0%' }}
-                animate={{ width: '100%' }}
+                className="absolute inset-y-0 left-0 bg-primary w-full origin-left"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
                 transition={{ delay: 0.3, duration: 1.8, ease: 'easeInOut' }}
               />
-            </motion.div>
+            </div>
           </motion.div>
         </motion.div>
       )}

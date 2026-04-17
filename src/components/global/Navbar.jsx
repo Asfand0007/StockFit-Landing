@@ -52,9 +52,10 @@ export default function Navbar() {
             {/* Glow blob inside drawer */}
             <motion.div
               className="absolute -left-20 -top-20 h-80 w-80 rounded-full bg-primary opacity-10 blur-[120px] pointer-events-none"
-              initial={{ scale: 0.4, opacity: 0 }}
-              animate={{ scale: 1, opacity: 0.12 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.12 }}
               transition={{ duration: 0.6 }}
+              style={{ willChange: "opacity" }}
             />
 
             {/* Drawer content */}
