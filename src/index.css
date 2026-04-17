@@ -1,0 +1,41 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@source "./**/*.{js,jsx,ts,tsx}";
+
+:root {
+  --color-primary: #69b39d;
+  --color-secondary: #374a46;
+  --color-secondary-light: #374a4652;
+}
+
+
+@layer utilities {
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  .bg-secondary {
+    background-color: var(--color-secondary);
+  }
+  .text-secondary {
+    color: var(--color-secondary);
+  }
+  .bg-secondary-light {
+    background-color: var(--color-secondary-light);
+  }
+  .dm-sans {
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+  }
+  .font-montserrat {
+    font-family: "Montserrat", sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+  }
+}
