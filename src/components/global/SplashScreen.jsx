@@ -22,7 +22,7 @@ export default function SplashScreen({ onFinish }) {
       {phase === 'show' && (
         <motion.div
           key="splash"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0a0c0b] overflow-hidden"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#0a0c0b] overflow-hidden"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease: 'easeInOut' }}

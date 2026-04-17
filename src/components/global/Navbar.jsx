@@ -34,7 +34,7 @@ export default function Navbar() {
         {menuOpen && (
           <motion.div
             key="drawer"
-            className="fixed inset-0 z-50 md:hidden flex flex-col"
+            className="fixed inset-0 z-[100] md:hidden flex flex-col"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
