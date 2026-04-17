@@ -1,28 +1,26 @@
 import Steps from "./workSection/Steps"
 import Ticker from "./workSection/Ticker";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 
-const revealItem = {
-    hidden: { opacity: 0, y: 24 },
-    show: {
-        opacity: 1,
-        y: 0,
-        transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
-    },
-};
+export default function WorksSection({ animateIn = true }) {
+    const prefersReducedMotion = useReducedMotion();
+    const offsetY = prefersReducedMotion ? 0 : 18;
 
-export default function WorksSection() {
+    const reveal = (delay = 0) => ({
+        initial: { opacity: 0, y: offsetY },
+        whileInView: animateIn ? { opacity: 1, y: 0 } : { opacity: 0, y: offsetY },
+        viewport: { once: true, amount: 0.2 },
+        transition: {
+            duration: prefersReducedMotion ? 0.3 : 0.58,
+            ease: [0.22, 1, 0.36, 1],
+            delay,
+        },
+    });
 
     return (
-        <motion.section
-            className="relative w-full min-h-screen bg-background font-montserrat px-4 sm:px-8 py-12 sm:py-16"
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ staggerChildren: 0.1 }}
-        >
+        <section className="relative w-full min-h-screen bg-background font-montserrat px-4 sm:px-8 py-12 sm:py-16">
             {/* Header */}
-            <motion.div variants={revealItem} className="flex flex-col justify-center items-center mb-8 sm:mb-10">
+            <motion.div {...reveal(0.02)} className="flex flex-col justify-center items-center mb-8 sm:mb-10">
                 <span className="inline-block text-xs sm:text-sm rounded-full px-3 py-1 mb-4 text-secondary-dark bg-secondary-light">
                     How It Works
                 </span>
@@ -53,11 +51,11 @@ export default function WorksSection() {
             </div> */}
 
             {/* 3-Column Cards */}
-            <motion.div variants={revealItem}>
+            <motion.div {...reveal(0.06)}>
                 <Steps />
             </motion.div>
 
-            <motion.div variants={revealItem} className="flex flex-col items-center justify-end gap-4 mb-10 sm:mb-16 px-2">
+            <motion.div {...reveal(0.1)} className="flex flex-col items-center justify-end gap-4 mb-10 sm:mb-16 px-2">
                 <p className="mt-4 text-gray-500 max-w-xl text-sm text-center leading-relaxed">
                     StockFit simplifies investing in the Pakistan Stock Exchange by combining risk profiling with intelligent optimization — everything tailored for you.
                 </p>
@@ -66,7 +64,7 @@ export default function WorksSection() {
                 </button>
             </motion.div>
 
-            <motion.div variants={revealItem}>
+            <motion.div {...reveal(0.12)}>
                 <Ticker />
             </motion.div>
             {/* ── Decorative bottom wave ───────────────────────────────────────── */}
@@ -81,6 +79,6 @@ export default function WorksSection() {
                     <div className="absolute bottom-full bg-[#fafafa] h-5 w-5 rounded-bl-2xl" />
                 </div>
             </div>
-        </motion.section>
+        </section>
     );
 }

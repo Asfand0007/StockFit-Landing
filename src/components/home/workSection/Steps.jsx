@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 
 const steps = [
     {
@@ -7,13 +8,8 @@ const steps = [
         title: "Quick Setup",
         description:
             "Create your account in seconds and get started with a seamless onboarding experience tailored for modern investors.",
-        visual: (
-            <img
-                src="https://images.unsplash.com/photo-1556745757-8d76bdb6984b"
-                alt="Account setup"
-                className="w-full md:w-1/2 h-full object-cover rounded-xl opacity-80"
-            />
-        ),
+        imageSrc: "assests/steps/setup.png",
+        imageAlt: "Account setup",
     },
     {
         id: "questionnaire",
@@ -21,13 +17,8 @@ const steps = [
         title: "Smart Questionnaire",
         description:
             "Answer a series of structured questions to capture your financial goals, investment horizon, and tolerance for risk.",
-        visual: (
-            <img
-                src="https://images.unsplash.com/photo-1554224155-6726b3ff858f"
-                alt="Questionnaire"
-                className="w-full md:w-1/2 h-full object-cover rounded-xl opacity-80"
-            />
-        ),
+        imageSrc: "assests/steps/questionnaire.png",
+        imageAlt: "Questionnaire",
     },
     {
         id: "risk",
@@ -35,13 +26,8 @@ const steps = [
         title: "Risk Profiling",
         description:
             "Your responses are analyzed using a scoring model to classify you as a conservative, balanced, or aggressive investor.",
-        visual: (
-            <img
-                src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43"
-                alt="Risk analysis"
-                className="w-full md:w-1/2 h-full object-cover rounded-xl opacity-80"
-            />
-        ),
+        imageSrc: "assests/steps/profiling.png",
+        imageAlt: "Risk analysis",
     },
     {
         id: "portfolio",
@@ -49,19 +35,26 @@ const steps = [
         title: "Optimized Portfolio",
         description:
             "Using your risk profile, StockFit applies Genetic Algorithms to construct an optimal portfolio from KSE-30 stocks within the Pakistan Stock Exchange.",
-        visual: (
-            <img
-                src="https://images.unsplash.com/photo-1640161704729-cbe966a08476"
-                alt="Portfolio optimization"
-                className="w-full md:w-1/2 h-full object-cover rounded-xl opacity-80"
-            />
-        ),
+        imageSrc: "assests/steps/portfolio.png",
+        imageAlt: "Portfolio optimization",
     },
 ];
 
 export default function Steps() {
     const [hovered, setHovered] = useState(null);   // desktop hover
     const [active, setActive] = useState("setup");  // mobile tap — first open by default
+    const prefersReducedMotion = useReducedMotion();
+
+    const getReveal = (index = 0) => ({
+        initial: { opacity: 0, y: prefersReducedMotion ? 0 : 12 },
+        whileInView: { opacity: 1, y: 0 },
+        viewport: { once: true, amount: 0.25 },
+        transition: {
+            duration: prefersReducedMotion ? 0.24 : 0.45,
+            delay: prefersReducedMotion ? 0 : Math.min(index * 0.04, 0.2),
+            ease: [0.22, 1, 0.36, 1],
+        },
+    });
 
     return (
         <>
@@ -73,15 +66,15 @@ export default function Steps() {
                 {steps.map((step, index) => {
                     const isOpen = active === step.id;
                     return (
-                        <div key={step.id} className="relative flex gap-4">
+                        <motion.div key={step.id} className="relative flex gap-4" {...getReveal(index)}>
 
                             {/* Left column: number badge + connector line */}
-                            <div className="flex flex-col items-center flex-shrink-0">
+                            <div className="flex flex-col items-center shrink-0">
                                 <button
                                     onClick={() => setActive(isOpen ? null : step.id)}
                                     className={`w-9 h-9 rounded-full border flex items-center justify-center text-xs font-bold font-montserrat transition-colors duration-300 cursor-pointer ${isOpen
-                                            ? "bg-secondary text-white border-secondary"
-                                            : "text-secondary-dark border-[#374a4693]"
+                                        ? "bg-secondary text-white border-secondary"
+                                        : "text-secondary-dark border-[#374a4693]"
                                         }`}
                                 >
                                     {step.number}
@@ -103,12 +96,20 @@ export default function Steps() {
                                         {step.title}
                                     </h3>
                                     {/* Chevron */}
-                                    <span
-                                        className="text-gray-400 text-xs ml-2 transition-transform duration-300 flex-shrink-0"
-                                        style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
-                                    >
-                                        ▾
-                                    </span>
+                                    <div className="flex justify-center items-center">
+
+                                        <img
+                                            src={step.imageSrc}
+                                            alt={step.imageAlt}
+                                            className="h-8 sm:hidden object-cover mx-auto"
+                                        />
+                                        <span
+                                            className="text-gray-400 text-sm ml-2 transition-transform duration-300 flex-shrink-0"
+                                            style={{ transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                                        >
+                                            ▾
+                                        </span>
+                                    </div>
                                 </button>
 
                                 {/* Expandable: description + image */}
@@ -120,15 +121,19 @@ export default function Steps() {
                                         transition: "max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease",
                                     }}
                                 >
-                                    <p className="text-sm text-gray-500 mb-3 leading-relaxed pt-1">
+                                    {/* <div className="rounded-xl overflow-hidden py-3">
+                                        <img
+                                            src={step.imageSrc}
+                                            alt={step.imageAlt}
+                                            className="h-30 sm:h-40 object-cover mx-auto sm:mb-auto rounded-xl opacity-80"
+                                        />
+                                    </div> */}
+                                    <p className="text-sm text-gray-500 leading-relaxed ">
                                         {step.description}
                                     </p>
-                                    <div className="w-full h-36 rounded-xl overflow-hidden">
-                                        {step.visual}
-                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </motion.div>
                     );
                 })}
             </div>
@@ -138,14 +143,15 @@ export default function Steps() {
                 (hidden below md)
             ════════════════════════════════ */}
             <div className="hidden md:flex h-80 mb-4 divide-x divide-[#374a4693]">
-                {steps.map((step) => {
+                {steps.map((step, index) => {
                     const isHovered = hovered === step.id;
                     return (
-                        <div
+                        <motion.div
                             key={step.id}
                             onMouseEnter={() => setHovered(step.id)}
                             onMouseLeave={() => setHovered(null)}
                             className="relative overflow-hidden flex flex-col justify-between p-6 cursor-pointer"
+                            {...getReveal(index)}
                             style={{
                                 flex: isHovered ? "2" : "1",
                                 transition: "flex 1s cubic-bezier(0.4, 0, 0.2, 1)",
@@ -153,7 +159,11 @@ export default function Steps() {
                         >
                             {/* Visual area */}
                             <div className="flex-1 flex items-center justify-center">
-                                {step.visual}
+                                <img
+                                    src={step.imageSrc}
+                                    alt={step.imageAlt}
+                                    className="h-30 sm:h-40 object-cover mx-auto sm:mb-auto rounded-xl opacity-80"
+                                />
                             </div>
 
                             {/* Text */}
@@ -169,12 +179,12 @@ export default function Steps() {
                                 >
                                     {step.description}
                                 </div>
-                                <h3 className="text-base font-semibold text-black flex items-center gap-2">
+                                <h3 className="text-base font-semibold text-secondary-dark flex items-center gap-2">
                                     <span className="text-xs font-normal text-gray-400">{step.number}</span>
                                     {step.title}
                                 </h3>
                             </div>
-                        </div>
+                        </motion.div>
                     );
                 })}
             </div>

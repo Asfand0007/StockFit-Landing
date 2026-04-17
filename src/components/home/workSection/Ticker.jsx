@@ -3,18 +3,14 @@ import { useState, useEffect } from "react";
 export default function Ticker({ categoryId, color, bgColor }) {
     const [teams, setTeams] = useState([]);
     const stocks = [
-        "assests/hero/psx.png",
-        "assests/hero/psx-logo.png",
-        "assests/hero/psx2.png",
-        "assests/hero/safe.png",
-        "assests/hero/psx.png",
-        "assests/hero/psx-logo.png",
-        "assests/hero/psx2.png",
-        "assests/hero/safe.png",
-        "assests/hero/psx.png",
-        "assests/hero/psx-logo.png",
-        "assests/hero/psx2.png",
-        "assests/hero/safe.png",
+        "assests/kse/1.png",
+        "assests/kse/2.png",
+        "assests/kse/3.png",
+        "assests/kse/4.png",
+        "assests/kse/5.png",
+        "assests/kse/6.png",
+        "assests/kse/7.png",
+        "assests/kse/8.png",
     ]
     return (
         <div className="w-full mb-20 sm:mb-20 flex flex-col justify-center items-center">
@@ -33,7 +29,7 @@ export default function Ticker({ categoryId, color, bgColor }) {
                             key={i}
                             src={item}
                             alt=""
-                            className="w-10 h-10 sm:w-15 sm:h-15 inline mx-5 md:mx-30 grayscale-75"
+                            className="w-auto h-12 sm:w-auto sm:h-20 inline mx-5 md:mx-20 grayscale-75"
                         />
                     ))}
                 </div>

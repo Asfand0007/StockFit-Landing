@@ -1,7 +1,7 @@
 import { Globe, MessageSquare, Landmark, Zap, Target, BrainCircuit, Monitor, ShieldQuestionMark, ChartColumnIncreasing, ChartCandlestick } from "lucide-react";
 
 
-export const steps = [
+export const reasons = [
     {
         left: {
             icon: <Landmark size={26} strokeWidth={1.5} />,

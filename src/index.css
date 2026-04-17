@@ -11,6 +11,14 @@
   --color-background: #fafafa;
 }
 
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE, Edge */
+  scrollbar-width: none;     /* Firefox */
+}
 
 @layer utilities {
   .bg-primary {

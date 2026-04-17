@@ -22,7 +22,7 @@ const drawerItem = {
   show: { x: 0, opacity: 1, transition: { ease: [0.22, 1, 0.36, 1], duration: 0.45 } },
 };
 
-export default function Navbar() {
+export default function Navbar({ animateIn = true }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -131,9 +131,9 @@ export default function Navbar() {
       ══════════════════════════════════════════ */}
       <motion.nav
         className="font-montserrat absolute top-5 left-1/2 -translate-x-1/2 z-50 w-11/12"
-        initial={{ y: -30, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+        initial={false}
+        animate={animateIn ? { y: 0, opacity: 1 } : { y: -24, opacity: 0 }}
+        transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className="px-3 py-3 rounded-full grid grid-cols-4 items-center gap-2">
 

@@ -1,51 +1,65 @@
 import { ArrowUpRight } from "lucide-react";
-import { motion } from "framer-motion";
-
-const heroContainer = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.14,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const heroItem = {
-  hidden: { opacity: 0, y: 24 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] },
-  },
-};
+import { motion, useReducedMotion } from "framer-motion";
 
 export default function Hero({ animateIn = true }) {
+  const prefersReducedMotion = useReducedMotion();
+  const offsetY = prefersReducedMotion ? 0 : 20;
+
+  const heroContainer = {
+    hidden: {},
+    show: {
+      transition: {
+        staggerChildren: prefersReducedMotion ? 0.04 : 0.12,
+        delayChildren: prefersReducedMotion ? 0 : 0.08,
+      },
+    },
+  };
+
+  const heroItem = {
+    hidden: { opacity: 0, y: offsetY },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: prefersReducedMotion ? 0.3 : 0.58,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
+  const floatingCard = {
+    hidden: { opacity: 0, y: prefersReducedMotion ? 0 : 28, scale: prefersReducedMotion ? 1 : 0.96 },
+    show: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: prefersReducedMotion ? 0.3 : 0.65,
+        ease: [0.22, 1, 0.36, 1],
+      },
+    },
+  };
+
   return (
-    <motion.div
+    <motion.section
       className="relative min-h-screen w-full font-montserrat overflow-hidden bg-[#0a0c0b] text-white"
       variants={heroContainer}
       initial="hidden"
       animate={animateIn ? "show" : "hidden"}
     >
       {/* Glow blob */}
-      <motion.div
-        className="absolute -right-[10%] -top-[10%] h-[400px] w-[400px] md:h-[600px] md:w-[600px] rounded-full bg-primary opacity-20 blur-[200px]"
-        initial={{ opacity: 0, scale: 0.88 }}
-        animate={animateIn ? { opacity: 0.2, scale: 1 } : { opacity: 0, scale: 0.88 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-      />
+      <div className="absolute -right-[10%] -top-[10%] h-[400px] w-[400px] md:h-[600px] md:w-[600px] rounded-full bg-primary opacity-20 blur-[200px]" />
 
       {/* ── Floating card: logos — tablet (md) + desktop (lg) only ────── */}
       <motion.div
         className="hidden md:block absolute left-[4%] lg:left-[7%] top-[15%]"
-        variants={heroItem}
+        variants={floatingCard}
       >
         <div className="relative h-32 w-32 lg:h-56 lg:w-56">
           <div className="absolute left-0 top-0 h-3/4 w-3/4 bg-secondary-light backdrop-blur-xs overflow-hidden rounded-full shadow-lg">
             <img src="assests/hero/psx-logo.png" className="h-full w-full object-cover" alt="PSX logo" />
           </div>
-          <div className="absolute bottom-2 right-2 lg:bottom-4 lg:right-4 h-1/2 w-1/2 bg-secondary-light backdrop-blur-xs overflow-hidden rounded-full shadow-lg">
+          <div className="absolute bottom-2 right-2 lg:bottom-4 lg:left-[55%] h-1/2 w-1/2 bg-secondary-light backdrop-blur-xs overflow-hidden rounded-full shadow-lg">
             <img src="assests/Stockfit-logo.png" className="m-auto h-full w-full p-3 object-cover" alt="StockFit logo" />
           </div>
         </div>
@@ -54,7 +68,7 @@ export default function Hero({ animateIn = true }) {
       {/* ── Floating card: portfolio value — tablet (md) + desktop (lg) ── */}
       <motion.div
         className="hidden md:flex absolute right-[3%] lg:right-[2%] bottom-[18%] lg:bottom-[20%] backdrop-blur-xs w-36 h-36 lg:w-60 lg:h-60 bg-secondary-light rounded-2xl justify-center items-center flex-col gap-1 rotate-12"
-        variants={heroItem}
+        variants={floatingCard}
       >
         <img src="assests/hero/trading.png" alt="" className="h-10 w-10 lg:h-20 lg:w-20" />
         <h2 className="text-white text-center text-xs lg:text-xl leading-tight">
@@ -68,7 +82,7 @@ export default function Hero({ animateIn = true }) {
       {/* ── Floating card: risk level — desktop (lg) only ─────────────── */}
       <motion.div
         className="hidden lg:flex absolute right-[18%] bottom-[10%] backdrop-blur-xs w-40 h-40 bg-secondary-light rounded-2xl justify-center items-center flex-col rotate-6"
-        variants={heroItem}
+        variants={floatingCard}
       >
         <img src="assests/hero/safe.png" alt="" className="h-10 w-10" />
         <h2 className="text-white text-center text-lg mt-2">Risk Level:</h2>
@@ -76,7 +90,10 @@ export default function Hero({ animateIn = true }) {
       </motion.div>
 
       {/* ── Main centred content ─────────────────────────────────────────── */}
-      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-28 pb-28 md:h-screen md:pt-0 md:pb-0 text-center">
+      <motion.div
+        className="relative z-10 flex flex-col items-center justify-center min-h-screen px-6 pt-28 pb-28 md:h-screen md:pt-0 md:pb-0 text-center"
+        variants={heroContainer}
+      >
         <motion.h1 variants={heroItem} className="text-3xl sm:text-4xl md:text-4xl lg:text-5xl leading-none">
           Smart Investing for the <br className="hidden sm:block" /> Pakistan Stock Market
         </motion.h1>
@@ -96,17 +113,28 @@ export default function Hero({ animateIn = true }) {
         </motion.div>
 
         {/* ── Mobile-only stat cards row (shown below CTA on small screens) */}
-        <motion.div variants={heroItem} className="md:hidden flex gap-3 mt-10 w-full max-w-xs sm:max-w-sm justify-center">
+        <motion.div
+          className="md:hidden flex gap-3 mt-10 w-full max-w-xs sm:max-w-sm justify-center"
+          variants={{
+            hidden: {},
+            show: {
+              transition: {
+                staggerChildren: prefersReducedMotion ? 0.02 : 0.08,
+                delayChildren: prefersReducedMotion ? 0 : 0.05,
+              },
+            },
+          }}
+        >
 
           {/* Portfolio card */}
-          <div className="bg-secondary-light backdrop-blur-xs rounded-2xl p-3 flex flex-col justify-center items-center flex-1 -rotate-6">
+          <motion.div variants={heroItem} className="bg-secondary-light backdrop-blur-xs rounded-2xl p-3 flex flex-col justify-center items-center flex-1 -rotate-6">
             <img src="assests/hero/trading.png" alt="" className="h-10 w-10" />
             <p className="text-white/80 text-[10px] text-center mt-2 leading-tight font-medium">Optimized Portfolio</p>
             <p className="text-green-500 text-[11px] font-bold">+60% Return</p>
-          </div>
+          </motion.div>
 
           {/* Logo card */}
-          <div className="p-3 flex flex-col items-center justify-center gap-2 flex-1">
+          <motion.div variants={heroItem} className="p-3 flex flex-col items-center justify-center gap-2 flex-1">
             <div className="relative w-15 h-15 ">
               <div className="absolute left-0 top-0 h-full w-full bg-secondary-light overflow-hidden rounded-full border border-white/10">
                 <img src="assests/hero/psx-logo.png" className="h-full w-full object-cover" alt="PSX" />
@@ -115,24 +143,19 @@ export default function Hero({ animateIn = true }) {
                 <img src="assests/Stockfit-logo.png" className="h-full w-full p-1 object-cover" alt="SF" />
               </div>
             </div>
-          </div>
+          </motion.div>
 
           {/* Risk card */}
-          <div className="bg-secondary-light backdrop-blur-xs rounded-2xl p-3 flex flex-col justify-center items-center flex-1 rotate-3">
+          <motion.div variants={heroItem} className="bg-secondary-light backdrop-blur-xs rounded-2xl p-3 flex flex-col justify-center items-center flex-1 rotate-3">
             <img src="assests/hero/safe.png" alt="" className="h-10 w-10" />
             <p className="text-white/80 mt-2 text-[10px] text-center leading-tight font-medium">Risk Level</p>
             <p className="text-green-500 text-[11px] font-bold">Moderate</p>
-          </div>
+          </motion.div>
         </motion.div>
-      </div>
+      </motion.div>
 
       {/* ── Decorative bottom wave ───────────────────────────────────────── */}
-      <motion.div
-        className="grid grid-cols-3 absolute bottom-0 w-full items-baseline"
-        initial={{ opacity: 0, y: 10 }}
-        animate={animateIn ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-        transition={{ duration: 0.6, delay: animateIn ? 0.25 : 0 }}
-      >
+      <div className="grid grid-cols-3 absolute bottom-0 w-full items-baseline">
         <div className="bg-background h-20 rounded-tr-2xl" />
         <div className="relative bg-background h-10 rounded-tr-2xl">
           <div className="absolute bottom-full bg-background h-5 w-5" />
@@ -142,24 +165,7 @@ export default function Hero({ animateIn = true }) {
           <div className="absolute bottom-full bg-background h-5 w-5" />
           <div className="absolute bottom-full bg-[#0d1110] h-5 w-5 rounded-bl-2xl" />
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </motion.section>
   );
 }
-
-
-{/* AVATARS USERS */ }
-{/* <div className="absolute left-[5%] top-[10%]">
-        <div className="flex items-center px-4 py-2 w-fit">
-        <div className="flex -space-x-3">
-        <img src="https://randomuser.me/api/portraits/women/1.jpg" alt="user" className="w-10 h-10 rounded-full border-2 border-white object-cover"/>
-        <img src="https://randomuser.me/api/portraits/women/1.jpg" alt="user" className="w-10 h-10 rounded-full border-2 border-white object-cover"/>
-        <img src="https://randomuser.me/api/portraits/women/1.jpg" alt="user" className="w-10 h-10 rounded-full border-2 border-white object-cover"/>
-        <img src="https://randomuser.me/api/portraits/women/1.jpg" alt="user" className="w-10 h-10 rounded-full border-2 border-white object-cover"/>
-        </div>
-
-          <span className="ml-4 text-gray-600 text-lg font-medium">
-            2k+ active users
-          </span>
-        </div>
-        </div> */}

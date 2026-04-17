@@ -2,10 +2,10 @@
 // The sticky center column: section badge, heading, silhouette visual,
 // progress dots, and CTA button.
 // Props:
-//   steps      — full steps array (for dot count + active icons)
-//   activeStep — index of the currently visible scroll segment
+//   reasons      — full reasons array (for dot count + active icons)
+//   activeReason — index of the currently visible scroll segment
 
-export default function CenterColumn({ steps, activeStep }) {
+export default function CenterColumn({ reasons, activeReason }) {
     return (
         <div className="sticky top-0 h-screen flex flex-col items-center justify-center pointer-events-none z-50"
             style={{ left: "33.333%", width: "33.333%" }}
@@ -41,7 +41,7 @@ export default function CenterColumn({ steps, activeStep }) {
 
 
                 <div
-                    className="absolute rounded-full flex items-center justify-center transition-all duration-500"
+                    className="absolute rounded-full flex items-center justify-center"
                     style={{
                         left: -20, top: 80,
                         background: "#374a46",
@@ -49,12 +49,12 @@ export default function CenterColumn({ steps, activeStep }) {
                         width: 46, height: 46,
                     }}
                 >
-                    {steps[activeStep].left.icon}
+                    {reasons[activeReason].left.icon}
                 </div>
 
                 {/* Right floating icon bubble (muted secondary) */}
                 <div
-                    className="absolute rounded-full flex items-center justify-center transition-all duration-500"
+                    className="absolute rounded-full flex items-center justify-center"
                     style={{
                         right: -10, top: 30,
                         width: 46, height: 46,
@@ -63,20 +63,20 @@ export default function CenterColumn({ steps, activeStep }) {
 
                     }}
                 >
-                    {steps[activeStep].right.icon}
+                    {reasons[activeReason].right.icon}
                 </div>
             </div>
 
             {/* ── Progress dots ── */}
             <div className="flex gap-2 mt-4">
-                {steps.map((_, i) => (
+                {reasons.map((_, i) => (
                     <div
                         key={i}
-                        className="rounded-full transition-all duration-500"
+                        className="rounded-full"
                         style={{
-                            width: activeStep === i ? 28 : 8,
+                            width: activeReason === i ? 28 : 8,
                             height: 8,
-                            background: activeStep === i ? "#69b39d" : "#243d37",
+                            background: activeReason === i ? "#69b39d" : "#243d37",
                         }}
                     />
                 ))}
@@ -86,7 +86,7 @@ export default function CenterColumn({ steps, activeStep }) {
                 StockFit combines personalized risk profiling with advanced optimization, ensuring every investment decision is data-driven and aligned with your goals.
             </p>
             {/* ── CTA ── */}
-            <button className="mt-3 pointer-events-auto w-4/5 sm:w-auto text-white px-5 py-2.5 rounded-full bg-primary hover:bg-secondary cursor-pointer flex items-center justify-center gap-1 transition-colors">
+            <button className="mt-3 pointer-events-auto w-4/5 sm:w-auto text-white px-5 py-2.5 rounded-full bg-primary hover:bg-secondary cursor-pointer flex items-center justify-center gap-1">
                 Start Risk Assessment
             </button>
         </div>

@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 
 export default function SplashScreen({ onFinish }) {
   const [phase, setPhase] = useState('show'); // 'show' | 'exit'
+  const prefersReducedMotion = useReducedMotion();
+  const isSmallScreen = typeof window !== 'undefined' && window.innerWidth < 768;
+  const minimalMode = prefersReducedMotion || isSmallScreen;
 
   useEffect(() => {
     // After 2.4s start the exit animation, then call onFinish
@@ -14,8 +17,7 @@ export default function SplashScreen({ onFinish }) {
     };
   }, [onFinish]);
 
-  // 12 orbiting particles
-  const particles = Array.from({ length: 12 }, (_, i) => i);
+  const particles = Array.from({ length: minimalMode ? 7 : 12 }, (_, i) => i);
 
   return (
     <AnimatePresence>
@@ -31,23 +33,23 @@ export default function SplashScreen({ onFinish }) {
           <motion.div
             className="absolute h-[500px] w-[500px] rounded-full bg-primary opacity-15 blur-[140px]"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.18 }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
+            animate={{ opacity: minimalMode ? 0.12 : 0.18 }}
+            transition={{ duration: minimalMode ? 0.7 : 1.5, ease: 'easeOut' }}
             style={{ willChange: "opacity" }}
           />
           <motion.div
             className="absolute h-[300px] w-[300px] rounded-full bg-[#374a46] opacity-20 blur-[100px] -translate-x-40 translate-y-20"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 0.25 }}
-            transition={{ duration: 1.5, ease: 'easeOut', delay: 0.2 }}
+            animate={{ opacity: minimalMode ? 0.16 : 0.25 }}
+            transition={{ duration: minimalMode ? 0.7 : 1.5, ease: 'easeOut', delay: minimalMode ? 0.08 : 0.2 }}
             style={{ willChange: "opacity" }}
           />
 
           {/* ── Orbiting ring of dots ── */}
           <motion.div
             className="absolute"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 6, ease: 'linear', repeat: Infinity }}
+            animate={{ rotate: minimalMode ? 0 : 360 }}
+            transition={{ duration: minimalMode ? 0 : 6, ease: 'linear', repeat: minimalMode ? 0 : Infinity }}
           >
             {particles.map((i) => {
               const angle = (i / particles.length) * 360;
@@ -62,7 +64,7 @@ export default function SplashScreen({ onFinish }) {
                   style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)`, transform: 'translate(-50%,-50%)' }}
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: i % 3 === 0 ? 1 : 0.35, scale: 1 }}
-                  transition={{ delay: 0.05 * i, duration: 0.4 }}
+                  transition={{ delay: (minimalMode ? 0.03 : 0.05) * i, duration: minimalMode ? 0.3 : 0.4 }}
                 />
               );
             })}
@@ -87,7 +89,7 @@ export default function SplashScreen({ onFinish }) {
             className="relative flex flex-col items-center justify-center gap-5 z-10"
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, ease: [0.34, 1.56, 0.64, 1] }}
+            transition={{ duration: minimalMode ? 0.45 : 0.7, ease: [0.34, 1.56, 0.64, 1] }}
           >
             <div className="h-24 w-24 rounded-full bg-[#374a4652] backdrop-blur-xl border border-primary/20 flex items-center justify-center shadow-2xl relative">
               <img src="assests/Stockfit-logo.png" alt="StockFit" className="h-14 w-14 object-contain relative z-10" />
@@ -99,7 +101,7 @@ export default function SplashScreen({ onFinish }) {
                 className="font-montserrat text-3xl font-bold text-white tracking-widest"
                 initial={{ y: 40, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.45, duration: 0.6, ease: 'easeOut' }}
+                transition={{ delay: minimalMode ? 0.2 : 0.45, duration: minimalMode ? 0.35 : 0.6, ease: 'easeOut' }}
               >
                 STOCK<span className="text-primary">FIT</span>
               </motion.h1>
@@ -110,7 +112,7 @@ export default function SplashScreen({ onFinish }) {
               className="font-montserrat text-xs text-gray-500 tracking-[0.25em] uppercase text-center px-3"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.85, duration: 0.7 }}
+              transition={{ delay: minimalMode ? 0.3 : 0.85, duration: minimalMode ? 0.4 : 0.7 }}
             >
               Smart Investing · Pakistan Stock Market
             </motion.p>
@@ -121,7 +123,7 @@ export default function SplashScreen({ onFinish }) {
                 className="absolute inset-y-0 left-0 bg-primary w-full origin-left"
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ delay: 0.3, duration: 1.8, ease: 'easeInOut' }}
+                transition={{ delay: minimalMode ? 0.2 : 0.3, duration: minimalMode ? 1.1 : 1.8, ease: 'easeInOut' }}
               />
             </div>
           </motion.div>

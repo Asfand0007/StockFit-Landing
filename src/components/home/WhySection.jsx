@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { steps } from "./whySection/data.jsx";
+import { reasons } from "./whySection/data.jsx";
 import SidePanel from "./whySection/SidePanel";
 import CenterColumn from "./whySection/CenterColumn";
 import MobileWhySection from "./whySection/MobileWhySection";
 
 export default function WhySection() {
-    const [activeStep, setActiveStep] = useState(0);
+    const [activeReason, setActiveReason] = useState(0);
     const panelRefs = useRef([]);
 
     // ── Desktop scroll tracking ────────────────────────────────────────
@@ -13,7 +13,7 @@ export default function WhySection() {
         const observers = panelRefs.current.map((ref, i) => {
             if (!ref) return null;
             const observer = new IntersectionObserver(
-                ([entry]) => { if (entry.isIntersecting) setActiveStep(i); },
+                ([entry]) => { if (entry.isIntersecting) setActiveReason(i); },
                 { threshold: 0.5 }
             );
             observer.observe(ref);
@@ -23,24 +23,28 @@ export default function WhySection() {
     }, []);
 
     return (
-        <div className="relative font-montserrat" style={{ background: "#0a0c0b" }}>
+        <section className="relative font-montserrat" style={{ background: "#0a0c0b" }}>
 
             {/* ══════════════════════════════════════════
                 DESKTOP — three-column sticky layout
             ══════════════════════════════════════════ */}
-            <div className="hidden md:block" style={{ minHeight: `${steps.length * 100}vh` }}>
-                <CenterColumn steps={steps} activeStep={activeStep} />
+            <div className="hidden md:block" style={{ minHeight: `${reasons.length * 100}vh` }}>
+                <CenterColumn reasons={reasons} activeReason={activeReason} />
                 <div className="relative" style={{ zIndex: 10 }}>
-                    {steps.map((step, i) => (
+                    {reasons.map((reason, i) => (
                         <div
                             key={i}
                             ref={(el) => (panelRefs.current[i] = el)}
                             className="grid h-screen"
                             style={{ gridTemplateColumns: "1fr 1fr 1fr" }}
                         >
-                            <SidePanel item={step.left} side="left" />
+                            <div>
+                                <SidePanel item={reason.left} side="left" />
+                            </div>
                             <div />
-                            <SidePanel item={step.right} side="right" />
+                            <div>
+                                <SidePanel item={reason.right} side="right" />
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -49,7 +53,9 @@ export default function WhySection() {
             {/* ════════════════════════════════════════
     MOBILE — heading + horizontal scroll
 ════════════════════════════════════════ */}
-            <MobileWhySection steps={steps} />
-        </div>
+            <div>
+                <MobileWhySection reasons={reasons} />
+            </div>
+        </section>
     );
 }
