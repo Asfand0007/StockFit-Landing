@@ -7,6 +7,8 @@
   --color-primary: #69b39d;
   --color-secondary: #374a46;
   --color-secondary-light: #374a4652;
+  --color-secondary-dark: #0f1613;
+  --color-background: #fafafa;
 }
 
 
@@ -22,17 +24,33 @@
   .bg-secondary {
     background-color: var(--color-secondary);
   }
+
   .text-secondary {
     color: var(--color-secondary);
   }
+
   .bg-secondary-light {
     background-color: var(--color-secondary-light);
   }
+
+  .bg-background {
+    background-color: var(--color-background);
+  }
+
+  .bg-secondary-dark {
+    background-color: var(--color-secondary-dark);
+  }
+
+  .text-secondary-dark {
+    color: var(--color-secondary-dark);
+  }
+
   .dm-sans {
     font-family: "DM Sans", sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
   }
+
   .font-montserrat {
     font-family: "Montserrat", sans-serif;
     font-optical-sizing: auto;

@@ -69,7 +69,7 @@ export default function SplashScreen({ onFinish }) {
           </motion.div>
 
           {/* ── Pulsing outer ring ── */}
-          <motion.div
+          {/* <motion.div
             className="absolute h-48 w-48 rounded-full border border-primary/30"
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: [0.9, 1.15, 0.9], opacity: [0.3, 0.6, 0.3] }}
@@ -80,7 +80,7 @@ export default function SplashScreen({ onFinish }) {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
-          />
+          /> */}
 
           {/* ── Logo circle ── */}
           <motion.div
