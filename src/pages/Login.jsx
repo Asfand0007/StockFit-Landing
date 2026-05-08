@@ -2,11 +2,16 @@ import { useState } from 'react';
 import { ArrowUpRight, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { login as loginRequest } from '../services/auth';
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -43,7 +48,24 @@ export default function Login() {
         </motion.div>
 
         {/* Login Form */}
-        <motion.form variants={itemVariants} className="space-y-4 mb-8">
+        <motion.form
+          variants={itemVariants}
+          className="space-y-4 mb-8"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setError(null);
+            setLoading(true);
+            try {
+              await loginRequest({ email, password });
+              navigate('/');
+            } catch (err) {
+              console.error(err);
+              setError(err?.response?.data?.message || err.message || 'Login failed');
+            } finally {
+              setLoading(false);
+            }
+          }}
+        >
           {/* Email Input */}
           <div className="relative">
             <label className="text-sm font-semibold text-white/80 mb-2 block">Email Address</label>
@@ -97,11 +119,13 @@ export default function Login() {
           </div>
 
           {/* Login Button */}
+          {error && <div className="text-sm text-red-400">{error}</div>}
           <button
             type="submit"
-            className="w-full mt-6 bg-primary text-black font-semibold py-3 rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group"
+            disabled={loading}
+            className="w-full mt-6 bg-primary text-black font-semibold py-3 rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group disabled:opacity-60"
           >
-            Sign In
+            {loading ? 'Signing in...' : 'Sign In'}
             <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </button>
         </motion.form>

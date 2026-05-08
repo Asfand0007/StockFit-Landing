@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { ArrowUpRight, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { signup as signupRequest } from '../services/auth';
 
 export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
@@ -13,6 +15,9 @@ export default function SignUp() {
     confirmPassword: '',
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,7 +54,32 @@ export default function SignUp() {
           <p className="text-white/60">Create your Stock Fit account today</p>
         </motion.div>
 
-        <motion.form variants={itemVariants} className="space-y-4 mb-8">
+        <motion.form
+          variants={itemVariants}
+          className="space-y-4 mb-8"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setError(null);
+            if (formData.password !== formData.confirmPassword) {
+              setError('Passwords do not match');
+              return;
+            }
+            if (!agreedToTerms) {
+              setError('You must agree to the terms');
+              return;
+            }
+            setLoading(true);
+            try {
+              await signupRequest(formData);
+              navigate('/login');
+            } catch (err) {
+              console.error(err);
+              setError(err?.response?.data?.message || err.message || 'Sign up failed');
+            } finally {
+              setLoading(false);
+            }
+          }}
+        >
           <div className="relative">
             <label className="text-sm font-semibold text-white/80 mb-2 block">Full Name</label>
             <div className="relative">
@@ -179,12 +209,13 @@ export default function SignUp() {
             </span>
           </label>
 
+          {error && <div className="text-sm text-red-400">{error}</div>}
           <button
             type="submit"
-            disabled={!agreedToTerms}
+            disabled={!agreedToTerms || loading}
             className="w-full mt-6 bg-primary text-black font-semibold py-3 rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 group"
           >
-            Create Account
+            {loading ? 'Creating...' : 'Create Account'}
             <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </button>
         </motion.form>
