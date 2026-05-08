@@ -1,9 +1,10 @@
 import { ArrowUpRight, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link, useNavigate } from 'react-router-dom';
 
 const navLinks = [
-  { label: 'Home', href: '#' },
+  { label: 'Home', href: '/' },
   { label: 'Features', href: '#' },
   { label: 'Pricing', href: '#' },
   { label: 'Contact', href: '#' },
@@ -24,6 +25,7 @@ const drawerItem = {
 
 export default function Navbar({ animateIn = true }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <>
@@ -92,18 +94,18 @@ export default function Navbar({ animateIn = true }) {
                 animate="show"
               >
                 {navLinks.map((link, i) => (
-                  <motion.a
-                    key={link.label}
-                    href={link.href}
-                    variants={drawerItem}
-                    className={`font-montserrat text-2xl font-semibold py-3 px-4 rounded-2xl transition-colors ${i === 0
-                      ? 'text-primary'
-                      : 'text-white/80 hover:text-white hover:bg-[#374a4645]'
-                      }`}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    {link.label}
-                  </motion.a>
+                  <motion.div key={link.label} variants={drawerItem}>
+                    <Link
+                      to={link.href}
+                      className={`font-montserrat text-2xl font-semibold py-3 px-4 rounded-2xl transition-colors block ${i === 0
+                        ? 'text-primary'
+                        : 'text-white/80 hover:text-white hover:bg-[#374a4645]'
+                        }`}
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  </motion.div>
                 ))}
               </motion.nav>
 
@@ -114,10 +116,14 @@ export default function Navbar({ animateIn = true }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45, duration: 0.4 }}
               >
-                <button className="w-full text-white border border-white/20 px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
+                <button 
+                  onClick={() => { navigate('/signup'); setMenuOpen(false); }}
+                  className="w-full text-white border border-white/20 px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
                   Create Account <ArrowUpRight strokeWidth={1.5} size={18} />
                 </button>
-                <button className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
+                <button 
+                  onClick={() => { navigate('/login'); setMenuOpen(false); }}
+                  className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
                   Login <ArrowUpRight strokeWidth={1.5} size={18} />
                 </button>
               </motion.div>
@@ -147,23 +153,27 @@ export default function Navbar({ animateIn = true }) {
           <div className="hidden md:flex col-span-2 justify-center">
             <div className="w-fit backdrop-blur-2xl bg-secondary px-1.5 py-2.5 rounded-full">
               {navLinks.map((link, i) => (
-                <a
+                <Link
                   key={link.label}
-                  href={link.href}
+                  to={link.href}
                   className={`text-white ${i === 0 ? 'bg-primary p-2 px-4 rounded-full' : 'mx-3 lg:mx-4'}`}
                 >
                   {link.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
 
           {/* Right CTA — hidden on mobile */}
           <div className="hidden md:flex justify-end gap-2">
-            <button className="hidden lg:flex text-white px-4 py-2 rounded-full hover:bg-secondary cursor-pointer items-center gap-1 whitespace-nowrap transition-colors">
+            <button 
+              onClick={() => navigate('/signup')}
+              className="hidden lg:flex text-white px-4 py-2 rounded-full hover:bg-secondary cursor-pointer items-center gap-1 whitespace-nowrap transition-colors">
               Create Account <ArrowUpRight strokeWidth={1} />
             </button>
-            <button className="bg-white text-black px-4 py-2 rounded-full cursor-pointer flex items-center gap-1 hover:bg-gray-100 transition-colors">
+            <button 
+              onClick={() => navigate('/login')}
+              className="bg-white text-black px-4 py-2 rounded-full cursor-pointer flex items-center gap-1 hover:bg-gray-100 transition-colors">
               Login <ArrowUpRight strokeWidth={1} />
             </button>
           </div>

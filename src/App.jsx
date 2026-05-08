@@ -1,20 +1,15 @@
+import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
 
 function App() {
   return (
-    <>
-      <Home />
-      <div className="min-h-screen w-full bg-[#fafafa]">
-        <h1>Welcome to Stock Fit</h1>
-        <p>Your ultimate stock market analysis tool.</p>
-      </div>
-      <div className="bg-yellow-300 h-screen">
-        dasd
-      </div>
-      <div className="bg-yellow-300 h-screen">
-        dasd
-      </div>
-    </>
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<SignUp />} />
+    </Routes>
   );
 }
 
