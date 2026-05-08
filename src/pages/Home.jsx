@@ -3,12 +3,12 @@ import Navbar from "../components/global/Navbar";
 import WorksSection from "../components/home/WorksSection";
 import WhySection from "../components/home/WhySection";
 
-export default function Home({ heroReady = false }) {
+export default function Home() {
     return (
         <main>
-            <Navbar animateIn={heroReady} />
-            <Hero animateIn={heroReady} />
-            <WorksSection animateIn={heroReady} />
+            <Navbar animateIn={true} />
+            <Hero animateIn={true} />
+            <WorksSection animateIn={true} />
             <WhySection />
         </main>
     );
