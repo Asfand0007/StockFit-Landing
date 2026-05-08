@@ -1,13 +1,12 @@
 import { ArrowUpRight, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const navLinks = [
   { label: 'Home', href: '/' },
-  { label: 'Features', href: '#' },
-  { label: 'Pricing', href: '#' },
-  { label: 'Contact', href: '#' },
+  { label: 'Features', href: '#', scrollTarget: 'features' },
+  { label: 'Contact', href: '/#contact-us', scrollTarget: 'contact-us' },
 ];
 
 // Stagger children for drawer links
@@ -26,6 +25,71 @@ const drawerItem = {
 export default function Navbar({ animateIn = true }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [activeSection, setActiveSection] = useState('home');
+
+  useEffect(() => {
+    // Only run intersection observer on home page
+    if (location.pathname !== '/') {
+      setActiveSection('home');
+      return;
+    }
+
+    // Use Intersection Observer to detect which section is in view
+    const observerOptions = {
+      root: null,
+      rootMargin: '-50% 0px -50% 0px',
+      threshold: 0,
+    };
+
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const sectionId = entry.target.id;
+          if (sectionId) {
+            setActiveSection(sectionId);
+          }
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    // Observe all sections
+    const sections = document.querySelectorAll('[data-section]');
+    sections.forEach((section) => observer.observe(section));
+
+    return () => observer.disconnect();
+  }, [location.pathname]);
+
+  const isActive = (href, scrollTarget) => {
+    if (location.pathname !== '/') {
+      return location.pathname === href;
+    }
+    
+    // On home page, check if this is the active section
+    if (scrollTarget) {
+      return activeSection === scrollTarget;
+    }
+    
+    // Home link is active if no other section is active or if at top
+    return activeSection === 'home' || activeSection === '';
+  };
+
+  const scrollToContact = () => {
+    const contactSection = document.getElementById('contact-us');
+
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const scrollToSection = (sectionId) => {
+    const section = document.querySelector(`[data-section="${sectionId}"]`);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <>
@@ -97,11 +161,18 @@ export default function Navbar({ animateIn = true }) {
                   <motion.div key={link.label} variants={drawerItem}>
                     <Link
                       to={link.href}
-                      className={`font-montserrat text-2xl font-semibold py-3 px-4 rounded-2xl transition-colors block ${i === 0
+                      className={`font-montserrat text-2xl font-semibold py-3 px-4 rounded-2xl transition-colors block ${isActive(link.href, link.scrollTarget)
                         ? 'text-primary'
                         : 'text-white/80 hover:text-white hover:bg-[#374a4645]'
                         }`}
-                      onClick={() => setMenuOpen(false)}
+                      onClick={(event) => {
+                        if (link.scrollTarget) {
+                          event.preventDefault();
+                          scrollToSection(link.scrollTarget);
+                        }
+
+                        setMenuOpen(false);
+                      }}
                     >
                       {link.label}
                     </Link>
@@ -156,7 +227,13 @@ export default function Navbar({ animateIn = true }) {
                 <Link
                   key={link.label}
                   to={link.href}
-                  className={`text-white ${i === 0 ? 'bg-primary p-2 px-4 rounded-full' : 'mx-3 lg:mx-4'}`}
+                  className={`text-white ${isActive(link.href, link.scrollTarget) ? 'bg-primary p-2 px-4 rounded-full' : 'mx-3 lg:mx-4'}`}
+                  onClick={(event) => {
+                    if (link.scrollTarget) {
+                      event.preventDefault();
+                      scrollToSection(link.scrollTarget);
+                    }
+                  }}
                 >
                   {link.label}
                 </Link>

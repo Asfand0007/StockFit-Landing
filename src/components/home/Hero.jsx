@@ -1,9 +1,18 @@
 import { ArrowUpRight } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function Hero({ animateIn = true }) {
   const prefersReducedMotion = useReducedMotion();
+  const navigate = useNavigate();
   const offsetY = prefersReducedMotion ? 0 : 20;
+
+  const scrollToWorks = () => {
+    const worksSection = document.querySelector('[data-section="features"]');
+    if (worksSection) {
+      worksSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const heroContainer = {
     hidden: {},
@@ -46,6 +55,7 @@ export default function Hero({ animateIn = true }) {
       variants={heroContainer}
       initial="hidden"
       animate={animateIn ? "show" : "hidden"}
+      data-section="home"
     >
       {/* Glow blob */}
       <div className="absolute -right-[10%] -top-[10%] h-[400px] w-[400px] md:h-[600px] md:w-[600px] rounded-full bg-primary opacity-20 blur-[200px]" />
@@ -102,11 +112,11 @@ export default function Hero({ animateIn = true }) {
           top KSE-30 stocks — data-driven investing tailored to you.
         </motion.p>
         <motion.div variants={heroItem} className="flex flex-col sm:flex-row w-full sm:w-auto justify-center items-center gap-3 mt-5">
-          <button className="w-4/5 sm:w-auto text-white px-5 py-2.5 rounded-full bg-primary hover:bg-secondary cursor-pointer flex items-center justify-center gap-1 transition-colors">
+          <button onClick={scrollToWorks} className="w-4/5 sm:w-auto text-white px-5 py-2.5 rounded-full bg-primary hover:bg-secondary cursor-pointer flex items-center justify-center gap-1 transition-colors">
             How it Works
             <ArrowUpRight strokeWidth={1} />
           </button>
-          <button className="w-4/5 sm:w-auto bg-white text-black px-5 py-2.5 rounded-full cursor-pointer flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors">
+          <button onClick={() => navigate('/login')} className="w-4/5 sm:w-auto bg-white text-black px-5 py-2.5 rounded-full cursor-pointer flex items-center justify-center gap-1 hover:bg-gray-100 transition-colors">
             Get Started
             <ArrowUpRight strokeWidth={1} />
           </button>

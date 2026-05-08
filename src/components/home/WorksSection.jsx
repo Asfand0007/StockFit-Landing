@@ -18,7 +18,7 @@ export default function WorksSection({ animateIn = true }) {
     });
 
     return (
-        <section className="relative w-full min-h-screen bg-background font-montserrat px-4 sm:px-8 py-12 sm:py-16">
+        <section className="relative w-full min-h-screen bg-background font-montserrat px-4 sm:px-8 py-12 sm:py-16" data-section="features">
             {/* Header */}
             <motion.div {...reveal(0.02)} className="flex flex-col justify-center items-center mb-8 sm:mb-10">
                 <span className="inline-block text-xs sm:text-sm rounded-full px-3 py-1 mb-4 text-secondary-dark bg-secondary-light">
