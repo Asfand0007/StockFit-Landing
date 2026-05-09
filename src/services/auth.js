@@ -59,7 +59,13 @@ export function logout() {
 
 export function getCurrentUser() {
   const u = localStorage.getItem('user');
-  return u ? JSON.parse(u) : null;
+  if (!u) return null;
+
+  try {
+    return JSON.parse(u);
+  } catch {
+    return null;
+  }
 }
 
 export function getTokenFromCookie() {

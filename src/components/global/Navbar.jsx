@@ -33,15 +33,24 @@ export default function Navbar({ animateIn = true }) {
   const location = useLocation();
   const [activeSection, setActiveSection] = useState('home');
   const isDashboardRoute = location.pathname.startsWith('/dashboard');
+  const [displayName, setDisplayName] = useState('User');
 
   useEffect(() => {
     // Check if user is logged in
     const token = getTokenFromCookie();
     setIsLoggedIn(!!token);
-    
+
     if (token) {
       const currentUser = getCurrentUser();
       setUser(currentUser);
+
+      const firstName = currentUser?.first_name || '';
+      const lastName = currentUser?.last_name || '';
+      const name = `${firstName}${firstName && lastName ? ' ' : ''}${lastName}`.trim();
+      setDisplayName(name || 'User');
+    } else {
+      setUser(null);
+      setDisplayName('User');
     }
   }, []);
 
@@ -317,7 +326,7 @@ export default function Navbar({ animateIn = true }) {
                 <button 
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="bg-white text-black px-4 py-2 rounded-full cursor-pointer flex items-center gap-2 hover:bg-gray-100 transition-colors font-semibold">
-                  {user?.name || 'User'} <ChevronDown strokeWidth={1.5} size={18} />
+                  {displayName} <ChevronDown strokeWidth={1.5} size={18} />
                 </button>
                 <AnimatePresence>
                   {dropdownOpen && (
