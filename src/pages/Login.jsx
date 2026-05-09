@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ArrowUpRight, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
 import { login as loginRequest } from '../services/auth';
 
 export default function Login() {
@@ -11,7 +10,6 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -29,8 +27,8 @@ export default function Login() {
   return (
     <div className="min-h-screen w-full font-montserrat bg-[#0a0c0b] text-white overflow-hidden flex items-center justify-center px-4">
       {/* Glow blobs */}
-      <div className="absolute -right-[15%] -top-[15%] h-[500px] w-[500px] rounded-full bg-primary opacity-15 blur-[150px] pointer-events-none" />
-      <div className="absolute -left-[10%] bottom-[10%] h-[400px] w-[400px] rounded-full bg-secondary opacity-10 blur-[120px] pointer-events-none" />
+      <div className="absolute -right-[15%] -top-[15%] h-125 w-125 rounded-full bg-primary opacity-15 blur-[150px] pointer-events-none" />
+      <div className="absolute -left-[10%] bottom-[10%] h-100 w-100 rounded-full bg-secondary opacity-10 blur-[120px] pointer-events-none" />
 
       <motion.div
         className="relative z-10 w-full max-w-md"
@@ -57,7 +55,7 @@ export default function Login() {
             setLoading(true);
             try {
               await loginRequest({ email, password });
-              navigate('/');
+              window.location.assign('/dashboard');
             } catch (err) {
               console.error(err);
               setError(err?.response?.data?.message || err.message || 'Login failed');

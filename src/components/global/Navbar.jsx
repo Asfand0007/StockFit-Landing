@@ -27,6 +27,7 @@ export default function Navbar({ animateIn = true }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeSection, setActiveSection] = useState('home');
+  const isDashboardRoute = location.pathname.startsWith('/dashboard');
 
   useEffect(() => {
     // Only run intersection observer on home page
@@ -100,7 +101,7 @@ export default function Navbar({ animateIn = true }) {
         {menuOpen && (
           <motion.div
             key="drawer"
-            className="fixed inset-0 z-[100] md:hidden flex flex-col"
+            className="fixed inset-0 z-100 md:hidden flex flex-col"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -192,11 +193,13 @@ export default function Navbar({ animateIn = true }) {
                   className="w-full text-white border border-white/20 px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
                   Create Account <ArrowUpRight strokeWidth={1.5} size={18} />
                 </button>
-                <button 
-                  onClick={() => { navigate('/login'); setMenuOpen(false); }}
-                  className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
-                  Login <ArrowUpRight strokeWidth={1.5} size={18} />
-                </button>
+                {!isDashboardRoute && (
+                  <button 
+                    onClick={() => { navigate('/login'); setMenuOpen(false); }}
+                    className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
+                    Login <ArrowUpRight strokeWidth={1.5} size={18} />
+                  </button>
+                )}
               </motion.div>
             </div>
           </motion.div>
@@ -248,11 +251,13 @@ export default function Navbar({ animateIn = true }) {
               className="hidden lg:flex text-white px-4 py-2 rounded-full hover:bg-secondary cursor-pointer items-center gap-1 whitespace-nowrap transition-colors">
               Create Account <ArrowUpRight strokeWidth={1} />
             </button>
-            <button 
-              onClick={() => navigate('/login')}
-              className="bg-white text-black px-4 py-2 rounded-full cursor-pointer flex items-center gap-1 hover:bg-gray-100 transition-colors">
-              Login <ArrowUpRight strokeWidth={1} />
-            </button>
+            {!isDashboardRoute && (
+              <button 
+                onClick={() => navigate('/login')}
+                className="bg-white text-black px-4 py-2 rounded-full cursor-pointer flex items-center gap-1 hover:bg-gray-100 transition-colors">
+                Login <ArrowUpRight strokeWidth={1} />
+              </button>
+            )}
           </div>
 
           {/* Hamburger — mobile only */}
