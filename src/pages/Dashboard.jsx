@@ -20,7 +20,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <button
-            onClick={() => navigate('/dashboard/questionnaire')}
+            onClick={() => navigate('/questionnaire')}
             className="w-full text-left bg-secondary/40 border border-primary/20 rounded-2xl p-6 hover:bg-secondary/60 transition-colors"
           >
             <h3 className="text-xl font-semibold mb-2">Fill Questionnaire</h3>

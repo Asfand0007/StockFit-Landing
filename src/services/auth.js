@@ -1,35 +1,37 @@
 import api from '../api/axios';
 
+// One day in milliseconds (24 * 60 * 60 * 1000)
+const ONE_DAY_MS = 86400000;
+
 function setCookie(name, value, days = 7) {
-  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+  const expires = new Date(Date.now() + days * ONE_DAY_MS).toUTCString();
   const secure = location.protocol === 'https:' ? '; Secure' : '';
-  document.cookie = `${name}=${encodeURIComponent(value)}; Expires=${expires}; Path=/${secure}; SameSite=Lax`;
+  document.cookie = `${name}=${encodeURIComponent(value)}; Expires=${expires}; Path=/${secure}; SameSite=Strict`;
 }
 
 function extractToken(data) {
-  return data?.token || data?.accessToken || data?.data?.token || data?.data?.accessToken || null;
+  // Explicitly extract access_token from API response as per spec
+  return data?.access_token || null;
 }
 
 function getCookie(name) {
   return document.cookie.split('; ').reduce((r, v) => {
-    const parts = v.split('=');
+    const parts = v.split('=', 2);
     return parts[0] === name ? decodeURIComponent(parts[1]) : r;
   }, null);
 }
 
 function deleteCookie(name) {
-  document.cookie = `${name}=; Expires=${new Date(0).toUTCString()}; Path=/; SameSite=Lax`;
+  document.cookie = `${name}=; Expires=${new Date(0).toUTCString()}; Path=/; SameSite=Strict`;
 }
 
 export async function signup({ fullName, email, password }) {
   const payload = { name: fullName, email, password };
   const res = await api.post('/auth/signup', payload);
   const token = extractToken(res.data);
-  // if API returns token, store it in cookie
+  // Store JWT token in secure, HttpOnly-equivalent cookie only (removed localStorage for XSS protection)
   if (token) {
-    setCookie('token', token, 7);
-    // also keep in localStorage for compatibility
-    localStorage.setItem('token', token);
+    setCookie('auth_token', token, 7);
   }
   if (res.data?.user) {
     localStorage.setItem('user', JSON.stringify(res.data.user));
@@ -40,9 +42,9 @@ export async function signup({ fullName, email, password }) {
 export async function login({ email, password }) {
   const res = await api.post('/auth/login', { email, password });
   const token = extractToken(res.data);
+  // Store JWT token in secure, HttpOnly-equivalent cookie only (removed localStorage for XSS protection)
   if (token) {
-    setCookie('token', token, 7);
-    localStorage.setItem('token', token);
+    setCookie('auth_token', token, 7);
   }
   if (res.data?.user) {
     localStorage.setItem('user', JSON.stringify(res.data.user));
@@ -51,8 +53,7 @@ export async function login({ email, password }) {
 }
 
 export function logout() {
-  deleteCookie('token');
-  localStorage.removeItem('token');
+  deleteCookie('auth_token');
   localStorage.removeItem('user');
 }
 
@@ -62,5 +63,5 @@ export function getCurrentUser() {
 }
 
 export function getTokenFromCookie() {
-  return getCookie('token') || localStorage.getItem('token');
+  return getCookie('auth_token');
 }

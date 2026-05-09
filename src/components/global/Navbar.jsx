@@ -1,7 +1,8 @@
-import { ArrowUpRight, Menu, X } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { ArrowUpRight, Menu, X, ChevronDown } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { getTokenFromCookie, getCurrentUser, logout } from '../../services/auth';
 
 const navLinks = [
   { label: 'Home', href: '/' },
@@ -24,10 +25,37 @@ const drawerItem = {
 
 export default function Navbar({ animateIn = true }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const [activeSection, setActiveSection] = useState('home');
   const isDashboardRoute = location.pathname.startsWith('/dashboard');
+
+  useEffect(() => {
+    // Check if user is logged in
+    const token = getTokenFromCookie();
+    setIsLoggedIn(!!token);
+    
+    if (token) {
+      const currentUser = getCurrentUser();
+      setUser(currentUser);
+    }
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     // Only run intersection observer on home page
@@ -90,6 +118,24 @@ export default function Navbar({ animateIn = true }) {
     if (section) {
       section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsLoggedIn(false);
+    setUser(null);
+    setDropdownOpen(false);
+    navigate('/');
+  };
+
+  const handleDashboard = () => {
+    setDropdownOpen(false);
+    navigate('/dashboard');
+  };
+
+  const handleQuestionnaire = () => {
+    setDropdownOpen(false);
+    navigate('/questionnaire');
   };
 
   return (
@@ -188,17 +234,37 @@ export default function Navbar({ animateIn = true }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.45, duration: 0.4 }}
               >
-                <button 
-                  onClick={() => { navigate('/signup'); setMenuOpen(false); }}
-                  className="w-full text-white border border-white/20 px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
-                  Create Account <ArrowUpRight strokeWidth={1.5} size={18} />
-                </button>
-                {!isDashboardRoute && (
-                  <button 
-                    onClick={() => { navigate('/login'); setMenuOpen(false); }}
-                    className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
-                    Login <ArrowUpRight strokeWidth={1.5} size={18} />
-                  </button>
+                {isLoggedIn ? (
+                  <>
+                    <button 
+                      onClick={() => handleDashboard()}
+                      className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
+                      Dashboard
+                    </button>
+                    <button 
+                      onClick={() => handleQuestionnaire()}
+                      className="w-full text-white border border-white/20 px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
+                      Fill Questionnaire
+                    </button>
+                    <button 
+                      onClick={() => handleLogout()}
+                      className="w-full text-white px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
+                      Logout
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button 
+                      onClick={() => { navigate('/signup'); setMenuOpen(false); }}
+                      className="w-full text-white border border-white/20 px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
+                      Create Account <ArrowUpRight strokeWidth={1.5} size={18} />
+                    </button>
+                    <button 
+                      onClick={() => { navigate('/login'); setMenuOpen(false); }}
+                      className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
+                      Login <ArrowUpRight strokeWidth={1.5} size={18} />
+                    </button>
+                  </>
                 )}
               </motion.div>
             </div>
@@ -246,17 +312,54 @@ export default function Navbar({ animateIn = true }) {
 
           {/* Right CTA — hidden on mobile */}
           <div className="hidden md:flex justify-end gap-2">
-            <button 
-              onClick={() => navigate('/signup')}
-              className="hidden lg:flex text-white px-4 py-2 rounded-full hover:bg-secondary cursor-pointer items-center gap-1 whitespace-nowrap transition-colors">
-              Create Account <ArrowUpRight strokeWidth={1} />
-            </button>
-            {!isDashboardRoute && (
-              <button 
-                onClick={() => navigate('/login')}
-                className="bg-white text-black px-4 py-2 rounded-full cursor-pointer flex items-center gap-1 hover:bg-gray-100 transition-colors">
-                Login <ArrowUpRight strokeWidth={1} />
-              </button>
+            {isLoggedIn ? (
+              <div className="relative" ref={dropdownRef}>
+                <button 
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  className="bg-white text-black px-4 py-2 rounded-full cursor-pointer flex items-center gap-2 hover:bg-gray-100 transition-colors font-semibold">
+                  {user?.name || 'User'} <ChevronDown strokeWidth={1.5} size={18} />
+                </button>
+                <AnimatePresence>
+                  {dropdownOpen && (
+                    <motion.div
+                      className="absolute top-full right-0 mt-2 bg-secondary backdrop-blur-2xl rounded-2xl border border-white/10 overflow-hidden z-50"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <button
+                        onClick={handleDashboard}
+                        className="w-full cursor-pointer text-left px-4 py-3 text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+                        Dashboard
+                      </button>
+                      <button
+                        onClick={handleQuestionnaire}
+                        className="w-full cursor-pointer text-left px-4 py-3 text-white hover:bg-white/10 transition-colors border-t border-white/10 whitespace-nowrap">
+                        Fill Questionnaire
+                      </button>
+                      <button
+                        onClick={handleLogout}
+                        className="w-full cursor-pointer text-left px-4 py-3 text-red-400 hover:bg-white/10 transition-colors border-t border-white/10 whitespace-nowrap">
+                        Logout
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <>
+                <button 
+                  onClick={() => navigate('/signup')}
+                  className="hidden lg:flex text-white px-4 py-2 rounded-full hover:bg-secondary cursor-pointer items-center gap-1 whitespace-nowrap transition-colors">
+                  Create Account <ArrowUpRight strokeWidth={1} />
+                </button>
+                <button 
+                  onClick={() => navigate('/login')}
+                  className="bg-white text-black px-4 py-2 rounded-full cursor-pointer flex items-center gap-1 hover:bg-gray-100 transition-colors">
+                  Login <ArrowUpRight strokeWidth={1} />
+                </button>
+              </>
             )}
           </div>
 
