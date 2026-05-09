@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { ArrowUpRight, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { login as loginRequest } from '../services/auth';
 
 export default function Login() {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -55,7 +56,7 @@ export default function Login() {
             setLoading(true);
             try {
               await loginRequest({ email, password });
-              window.location.assign('/dashboard');
+              navigate('/dashboard');
             } catch (err) {
               console.error(err);
               setError(err?.response?.data?.message || err.message || 'Login failed');
