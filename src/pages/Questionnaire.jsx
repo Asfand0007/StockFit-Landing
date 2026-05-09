@@ -8,33 +8,33 @@ import api from '../api/axios';
 
 const stageDefinitions = [
   {
-    id: 'investment-profile',
-    title: 'Investment Profile',
+    id: 'risk-need',
+    title: 'Risk Need',
     questionIds: [
-      'annual_net_cash_flow',
+      'target_future_value',
       'current_portfolio_value',
-      'investment_experience_level',
+      'annual_net_cash_flow',
       'investment_time_horizon_years',
     ],
   },
   {
-    id: 'risk-assessment',
-    title: 'Risk Assessment',
+    id: 'risk-tolerance',
+    title: 'Risk Tolerance',
     questionIds: [
       'expects_high_withdrawal_rate',
-      'financial_knowledge_level',
       'has_stable_external_income',
-      'market_risk_perception',
     ],
   },
   {
-    id: 'preferences',
-    title: 'Preferences',
+    id: 'behavioral-loss-tolerance',
+    title: 'Behavioral Loss Tolerance',
     questionIds: [
-      'reaction_to_losses_score',
-      'safety_vs_return_preference',
-      'target_future_value',
       'willingness_to_take_risk',
+      'safety_vs_return_preference',
+      'financial_knowledge_level',
+      'investment_experience_level',
+      'market_risk_perception',
+      'reaction_to_losses_score'
     ],
   },
 ];
@@ -256,7 +256,6 @@ export default function Questionnaire() {
     return <LoadingTemplate />;
   }
 
-  // 4. Use the new Wrapper to eliminate duplicate code
   if (error) {
     return (
       <QuestionnaireLayout>
@@ -296,7 +295,7 @@ export default function Questionnaire() {
 
           <h1 className="text-3xl md:text-4xl font-bold leading-tight">Your questionnaire is complete.</h1>
           <p className="mt-3 max-w-2xl text-white/68">
-            We have captured your answers and investment profile. You can now continue to your dashboard to review the next steps.
+            We have captured your answers and Risk Need. You can now continue to your dashboard to review the next steps.
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
