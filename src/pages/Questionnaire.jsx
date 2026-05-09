@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/global/Navbar';
 import LoadingTemplate from '../components/questionnaire/Loading-template';
-import api from '../api/axios';
+import api, { getCookie } from '../api/axios';
 
 const stageDefinitions = [
   {
@@ -107,16 +107,17 @@ function normalizeQuestionsPayload(payload) {
 
   return items
     .map((item) => ({
-      id: item.question_id_cfa,
+      questionIdCfa: item.question_id_cfa,
+      id: item.question_id,
       question: item.question_string,
       type: item.question_type,
       options: item.question_options ?? [], // Modern null-coalescing
     }))
-    .filter((item) => item.id && item.question);
+    .filter((item) => item.questionIdCfa && item.question);
 }
 
 function buildStageData(questionsData) {
-  const availableIds = new Set(questionsData.map((question) => question.id));
+  const availableIds = new Set(questionsData.map((question) => question.questionIdCfa));
 
   return stageDefinitions.map((stage) => ({
     ...stage,
@@ -124,17 +125,15 @@ function buildStageData(questionsData) {
   }));
 }
 
-function formatAnswerValue(question, value) {
-  if (value === undefined || value === null || value === '') {
+function formatAnswerValue(answerObj) {
+  // If the answer for this question doesn't exist yet
+  if (!answerObj || !answerObj.selected_option) {
     return 'Not selected';
   }
 
-  if (question?.type === 'number_input') {
-    return value;
-  }
-
-  const option = question?.options?.find((choice) => choice.value === value);
-  return option?.label || value;
+  // Since we are now storing the label directly in the state 
+  // during handleSelect, we can just return it.
+  return answerObj.selected_option.label;
 }
 
 // --- Main Component ---
@@ -148,6 +147,12 @@ export default function Questionnaire() {
   const [currentQuestionIndexInStage, setCurrentQuestionIndexInStage] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (!getCookie('auth_token')) {
+      navigate('/login', { replace: true });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     // 1. Initialize AbortController to fix React 18 double-fetch
@@ -190,35 +195,51 @@ export default function Questionnaire() {
   const activeStage = stages[currentStageIndex] || stages[0];
   const currentStageQuestionIds = activeStage?.questionIds || [];
   const currentQuestionId = currentStageQuestionIds[currentQuestionIndexInStage];
-  const currentQuestionData = questionsData.find((question) => question.id === currentQuestionId);
-  const selectedValue = answers[currentQuestionId] || '';
+  const currentQuestionData = questionsData.find((question) => question.questionIdCfa === currentQuestionId);
+  const selectedValue = answers[currentQuestionId]?.selected_option?.value || '';
 
   const completedStages = useMemo(() => {
     return stages
       .map((stage, index) => ({
         index,
-        isComplete: stage.questionIds.length > 0 && stage.questionIds.every((questionId) => Boolean(answers[questionId])),
+        isComplete: stage.questionIds.length > 0 && 
+                    stage.questionIds.every((id) => Boolean(answers[id])), 
       }))
       .filter((stage) => stage.isComplete)
       .map((stage) => stage.index);
   }, [answers, stages]);
 
   const stageProgress = useMemo(() => {
-    if (!currentStageQuestionIds.length) {
-      return 0;
-    }
-
-    const answered = currentStageQuestionIds.filter((questionId) => Boolean(answers[questionId])).length;
+    if (!currentStageQuestionIds.length) return 0;
+    const answered = currentStageQuestionIds.filter((id) => Boolean(answers[id])).length;
     return Math.round((answered / currentStageQuestionIds.length) * 100);
   }, [answers, currentStageQuestionIds]);
 
   const handleSelect = (value) => {
+    // 1. Find the full option object from the current question's metadata
+    const selectedOption = currentQuestionData.options?.find(opt => opt.value === value);
+
     setAnswers((prev) => ({
       ...prev,
-      [currentQuestionId]: value,
+      [currentQuestionId]: {
+        question_id: currentQuestionData.id,
+        question_string: currentQuestionData.question,
+        question_type: currentQuestionData.type,
+        question_id_cfa: currentQuestionId,
+        selected_option: currentQuestionData.type === 'number_input' 
+          ? { 
+              label: value.toString(), 
+              value: value.toString(), 
+              weight: 0 
+            }
+          : {
+              label: selectedOption?.label || '',
+              value: selectedOption?.value || '',
+              weight: selectedOption?.weight || 0
+            }
+      },
     }));
   };
-
   const handleNext = () => {
     if (currentQuestionIndexInStage < currentStageQuestionIds.length - 1) {
       setCurrentQuestionIndexInStage((prev) => prev + 1);
@@ -232,6 +253,7 @@ export default function Questionnaire() {
     }
 
     setSubmitted(true);
+    submitAssessment();
   };
 
   const handlePrevious = () => {
@@ -246,6 +268,32 @@ export default function Questionnaire() {
       setCurrentQuestionIndexInStage(Math.max((stages[previousStageIndex]?.questionIds.length || 1) - 1, 0));
     }
   };
+
+  const submitAssessment = async () => {
+    try {
+      setLoading(true);
+      
+      // Transform the answers object into the 'responses' array
+      const payload = {
+        responses: Object.values(answers).map(ans => ({
+          question_id: ans.question_id,
+          question_string: ans.question_string,
+          question_type: ans.question_type,
+          question_id_cfa: ans.question_id_cfa,
+          selected_option: ans.selected_option
+        }))
+      };
+
+      await api.post('/assessment/risk', payload);
+      setSubmitted(true);
+    } catch (err) {
+      console.error('Submission failed:', err);
+      setError('Failed to submit assessment. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
 
   const isLastQuestion = currentQuestionIndexInStage === currentStageQuestionIds.length - 1;
   const isLastStage = currentStageIndex === stages.length - 1;
@@ -325,9 +373,9 @@ export default function Questionnaire() {
           <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
             {questionsData.map((question) => (
               <SummaryRow
-                key={question.id}
+                key={question.questionIdCfa}
                 label={question.question}
-                value={formatAnswerValue(question, answers[question.id])}
+                value={formatAnswerValue(answers[question.questionIdCfa])}
               />
             ))}
           </div>
