@@ -298,25 +298,27 @@ export default function Navbar({ animateIn = true }) {
             <h1 className="text-lg font-bold text-white whitespace-nowrap">Stock Fit</h1>
           </div>
 
-          {/* Nav links — hidden on mobile */}
+          {/* Nav links — hidden on mobile and when logged in */}
           <div className="hidden md:flex col-span-2 justify-center">
-            <div className="w-fit backdrop-blur-2xl bg-secondary px-1.5 py-2.5 rounded-full">
-              {navLinks.map((link, i) => (
-                <Link
-                  key={link.label}
-                  to={link.href}
-                  className={`text-white ${isActive(link.href, link.scrollTarget) ? 'bg-primary p-2 px-4 rounded-full' : 'mx-3 lg:mx-4'}`}
-                  onClick={(event) => {
-                    if (link.scrollTarget) {
-                      event.preventDefault();
-                      scrollToSection(link.scrollTarget);
-                    }
-                  }}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+            {!isLoggedIn && (
+              <div className="w-fit backdrop-blur-2xl bg-secondary px-1.5 py-2.5 rounded-full">
+                {navLinks.map((link, i) => (
+                  <Link
+                    key={link.label}
+                    to={link.href}
+                    className={`text-white ${isActive(link.href, link.scrollTarget) ? 'bg-primary p-2 px-4 rounded-full' : 'mx-3 lg:mx-4'}`}
+                    onClick={(event) => {
+                      if (link.scrollTarget) {
+                        event.preventDefault();
+                        scrollToSection(link.scrollTarget);
+                      }
+                    }}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right CTA — hidden on mobile */}
@@ -338,8 +340,16 @@ export default function Navbar({ animateIn = true }) {
                       transition={{ duration: 0.2 }}
                     >
                       <button
-                        onClick={handleDashboard}
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          navigate('/');
+                        }}
                         className="w-full cursor-pointer text-left px-4 py-3 text-white hover:bg-white/10 transition-colors whitespace-nowrap">
+                        Home
+                      </button>
+                      <button
+                        onClick={handleDashboard}
+                        className="w-full cursor-pointer text-left px-4 py-3 text-white hover:bg-white/10 transition-colors whitespace-nowrap border-t border-white/10">
                         Dashboard
                       </button>
                       <button

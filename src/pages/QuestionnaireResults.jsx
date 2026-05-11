@@ -119,10 +119,11 @@ export default function QuestionnaireResults() {
 
             <button
               type="button"
-              onClick={() => navigate('/dashboard')}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90"
+              disabled={!primaryRiskTier}
+              onClick={() => navigate('/recommendations', { state: { riskTier: primaryRiskTier } })}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
             >
-              Go to dashboard
+              See recommendations
               <ArrowRight size={18} />
             </button>
           </div>

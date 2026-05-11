@@ -1,0 +1,1 @@
+export const TIME_HORIZONS = ['3d', '30d', '3m', '6m', '1y', '5y'];
