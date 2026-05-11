@@ -1,5 +1,6 @@
 import { Mail, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { supervisor } from './data';
 
 export default function Contact({ member, footerItem }) {
   return (
@@ -13,12 +14,14 @@ export default function Contact({ member, footerItem }) {
             {member.email}
           </a>
         </div>
-        <div className="flex items-center gap-2">
-          <Phone size={14} className="text-primary flex-shrink-0" />
-          <a href={`tel:${member.phone}`} className="text-gray-300 text-sm hover:text-primary transition-colors">
-            {member.phone}
-          </a>
-        </div>
+        {member.id !== supervisor.id && (
+          <div className="flex items-center gap-2">
+            <Phone size={14} className="text-primary flex-shrink-0" />
+            <a href={`tel:${member.phone}`} className="text-gray-300 text-sm hover:text-primary transition-colors">
+              {member.phone}
+            </a>
+          </div>
+        )}
       </div>
     </motion.div>
   );
