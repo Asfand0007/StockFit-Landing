@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ChevronLeft, ChevronRight, CheckCircle2, LayoutDashboard, TrendingUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle2, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/global/Navbar';
@@ -142,11 +142,13 @@ export default function Questionnaire() {
   const navigate = useNavigate();
   const [questionsData, setQuestionsData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMode, setLoadingMode] = useState('fetch');
   const [error, setError] = useState(null);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [currentQuestionIndexInStage, setCurrentQuestionIndexInStage] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [riskResult, setRiskResult] = useState(null);
 
   useEffect(() => {
     if (!getCookie('auth_token')) {
@@ -161,6 +163,7 @@ export default function Questionnaire() {
     const fetchQuestions = async () => {
       try {
         setLoading(true);
+        setLoadingMode('fetch');
         // Pass the signal to axios
         const response = await api.get('/assessment/questions', {
           signal: controller.signal,
@@ -252,7 +255,6 @@ export default function Questionnaire() {
       return;
     }
 
-    setSubmitted(true);
     submitAssessment();
   };
 
@@ -271,8 +273,9 @@ export default function Questionnaire() {
 
   const submitAssessment = async () => {
     try {
+      setLoadingMode('submit');
       setLoading(true);
-      
+
       // Transform the answers object into the 'responses' array
       const payload = {
         responses: Object.values(answers).map(ans => ({
@@ -284,7 +287,14 @@ export default function Questionnaire() {
         }))
       };
 
-      await api.post('/assessment/risk', payload);
+      const response = await api.post('/assessment/risk', payload);
+      const result = response.data || null;
+
+      setRiskResult(result);
+      if (result) {
+        sessionStorage.setItem('latestRiskAssessment', JSON.stringify(result));
+      }
+
       setSubmitted(true);
     } catch (err) {
       console.error('Submission failed:', err);
@@ -301,7 +311,7 @@ export default function Questionnaire() {
   // --- Render Cycle ---
 
   if (loading) {
-    return <LoadingTemplate />;
+    return <LoadingTemplate mode={loadingMode} />;
   }
 
   if (error) {
@@ -343,7 +353,7 @@ export default function Questionnaire() {
 
           <h1 className="text-3xl md:text-4xl font-bold leading-tight">Your questionnaire is complete.</h1>
           <p className="mt-3 max-w-2xl text-white/68">
-            We have captured your answers and Risk Need. You can now continue to your dashboard to review the next steps.
+            We have captured your answers and risk profile inputs. You can now optimize your portfolio and view your results.
           </p>
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
@@ -364,8 +374,8 @@ export default function Questionnaire() {
                 <p className="text-sm font-semibold uppercase tracking-[0.2em]">Next step</p>
               </div>
               <div className="space-y-1 text-sm text-white/80">
-                <p>Use the dashboard to continue the portfolio flow.</p>
-                <p>We can later connect these answers to API-driven recommendations.</p>
+                <p>Proceed to your results page to view your computed risk tier.</p>
+                <p>Use this tier to continue portfolio optimization.</p>
               </div>
             </div>
           </div>
@@ -391,11 +401,15 @@ export default function Questionnaire() {
 
             <button
               type="button"
-              onClick={() => navigate('/dashboard')}
+              onClick={() =>
+                navigate('/questionnaire/results', {
+                  state: { riskResult },
+                })
+              }
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90"
             >
-              Continue to dashboard
-              <LayoutDashboard size={18} />
+              Optimize my portfolio
+              <TrendingUp size={18} />
             </button>
           </div>
         </motion.div>
