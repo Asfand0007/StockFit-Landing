@@ -13,7 +13,7 @@ export default function StockChart({ data, tickFormatter }) {
           tickLine={false}
           axisLine={false}
           tick={{ fill: 'rgba(255,255,255,0.55)', fontSize: 12 }}
-          tickFormatter={(value) => `$${Number(value).toFixed(0)}`}
+          tickFormatter={(value) => `Rs.${Number(value).toFixed(0)}`}
           width={48}
         />
         <Tooltip content={<StockTooltip />} cursor={{ stroke: 'rgba(124,255,122,0.14)' }} />

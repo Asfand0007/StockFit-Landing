@@ -1,6 +1,6 @@
-export const moneyFormatter = new Intl.NumberFormat('en-US', {
+export const moneyFormatter = new Intl.NumberFormat('en-PK', {
   style: 'currency',
-  currency: 'USD',
+  currency: 'PKR',
   maximumFractionDigits: 2,
 });
 

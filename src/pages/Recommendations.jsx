@@ -56,7 +56,7 @@ export default function Recommendations() {
         setStoredPortfolio(portfolio);
       }
 
-      navigate('/portfolio', { state: { portfolio } });
+      navigate('/portfolio', { state: { portfolio, riskTier, fromRecommendations: true } });
     } catch (err) {
       console.error('Failed to create portfolio:', err);
       setPortfolioError('Failed to create portfolio. Please try again.');

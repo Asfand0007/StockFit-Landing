@@ -1,9 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, Briefcase, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AlertCircle, ArrowLeft, Briefcase, Sparkles, ChevronDown } from 'lucide-react';
 import Navbar from '../components/global/Navbar';
 import { getStoredPortfolio } from '../utils/storage';
+import api from '../api/axios';
 
 function StockPill({ stock }) {
   return (
@@ -22,6 +23,14 @@ export default function Portfolio() {
     return location.state?.portfolio || getStoredPortfolio() || null;
   }, [location.state?.portfolio]);
 
+  const riskTier = useMemo(() => {
+    return location.state?.riskTier || null;
+  }, [location.state?.riskTier]);
+
+  const fromRecommendations = useMemo(() => {
+    return location.state?.fromRecommendations === true;
+  }, [location.state?.fromRecommendations]);
+
   const allocations = Array.isArray(portfolio?.allocations) ? portfolio.allocations : [];
 
   const totalWeight = useMemo(() => {
@@ -30,6 +39,41 @@ export default function Portfolio() {
     }
     return allocations.reduce((acc, item) => acc + (item.allocation_percentage || 0), 0);
   }, [allocations]);
+
+  const [questionnaire, setQuestionnaire] = useState(null);
+  const [qLoading, setQLoading] = useState(false);
+  const [qError, setQError] = useState(null);
+  const [qOpen, setQOpen] = useState(false);
+
+  useEffect(() => {
+    const id = portfolio?.questionnaire_id || portfolio?.questionnaireId || portfolio?.questionnaire?.questionnaire_id;
+    if (!id) {
+      setQuestionnaire(null);
+      return;
+    }
+
+    let mounted = true;
+    setQLoading(true);
+    setQError(null);
+    api
+      .get(`/assessment/questionnaires/${id}`)
+      .then((res) => {
+        if (!mounted) return;
+        setQuestionnaire(res.data);
+      })
+      .catch((err) => {
+        if (!mounted) return;
+        setQError(err?.response?.data?.message || err.message || 'Failed to load questionnaire');
+      })
+      .finally(() => {
+        if (!mounted) return;
+        setQLoading(false);
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [portfolio]);
 
   return (
     <div className="min-h-screen w-full font-montserrat bg-[#0a0c0b] text-white overflow-hidden">
@@ -107,19 +151,78 @@ export default function Portfolio() {
                     <p>Total allocation: {totalWeight}%</p>
                   </div>
                 </div>
+
+                {/* Questionnaire collapsible panel */}
+                <div className="mt-6 border-t border-white/6 pt-6">
+                  <button
+                    type="button"
+                    onClick={() => setQOpen((s) => !s)}
+                    className="w-full flex items-center justify-between gap-3 rounded-lg px-3 py-2 hover:bg-white/3"
+                  >
+                    <div className="flex items-center gap-2 text-primary">
+                      <Sparkles size={16} />
+                      <p className="text-sm font-semibold uppercase tracking-[0.2em]">Questionnaire</p>
+                    </div>
+                    <ChevronDown className={`text-white/80 transition-transform ${qOpen ? 'rotate-180' : 'rotate-0'}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {qOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.22 }}
+                        className="overflow-hidden mt-3"
+                      >
+                        <div className="space-y-3">
+                          {qLoading ? (
+                            <p className="text-sm text-white/70">Loading questionnaire...</p>
+                          ) : qError ? (
+                            <p className="text-sm text-red-400">{qError}</p>
+                          ) : questionnaire ? (
+                            <>
+                              <div className="rounded-lg border border-white/10 bg-black/10 p-3">
+                                <p className="text-xs text-white/70">Taken: {questionnaire.created_at ? new Date(questionnaire.created_at).toLocaleString() : 'N/A'}</p>
+                                <p className="text-sm font-medium text-white/90">Assessed risk: {questionnaire.assessed_risk || 'N/A'}</p>
+                              </div>
+
+                              <div className="space-y-2">
+                                {Array.isArray(questionnaire.responses) && questionnaire.responses.length > 0 ? (
+                                  questionnaire.responses.map((r) => (
+                                    <div key={r.question_id} className="rounded-lg border border-white/5 p-3 bg-black/10">
+                                      <p className="text-sm font-medium text-white">{r.question_string}</p>
+                                      <p className="mt-1 text-sm text-primary/80">{r.selected_option?.label ?? r.selected_option?.value ?? '—'}</p>
+                                    </div>
+                                  ))
+                                ) : (
+                                  <p className="text-sm text-white/65">No answers available for this questionnaire.</p>
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            <p className="text-sm text-white/65">No questionnaire linked to this portfolio.</p>
+                          )}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
             </>
           )}
 
           <div className="mt-8">
-            <button
-              type="button"
-              onClick={() => navigate('/recommendations', { state: { riskTier } })}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white/80 transition-colors hover:bg-white/5"
-            >
-              <ArrowLeft size={18} />
-              Back to recommendations
-            </button>
+            {fromRecommendations && (
+              <button
+                type="button"
+                onClick={() => navigate('/recommendations', { state: { riskTier } })}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white/80 transition-colors hover:bg-white/5"
+              >
+                <ArrowLeft size={18} />
+                Back to recommendations
+              </button>
+            )}
           </div>
         </motion.div>
       </div>
