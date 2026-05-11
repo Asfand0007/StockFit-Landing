@@ -20,3 +20,46 @@ export function getStoredRiskTier() {
     return null;
   }
 }
+
+export function getStoredRiskAssessment() {
+  const raw = sessionStorage.getItem('latestRiskAssessment');
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function getStoredQuestionnaireId() {
+  const storedAssessment = getStoredRiskAssessment();
+
+  return (
+    storedAssessment?.questionnaire_id ||
+    storedAssessment?.questionnaireId ||
+    storedAssessment?.id ||
+    null
+  );
+}
+
+export function getStoredPortfolio() {
+  const raw = sessionStorage.getItem('latestPortfolio');
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredPortfolio(portfolio) {
+  sessionStorage.setItem('latestPortfolio', JSON.stringify(portfolio));
+}

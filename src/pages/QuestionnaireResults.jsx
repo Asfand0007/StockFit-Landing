@@ -120,7 +120,7 @@ export default function QuestionnaireResults() {
             <button
               type="button"
               disabled={!primaryRiskTier}
-              onClick={() => navigate('/recommendations', { state: { riskTier: primaryRiskTier } })}
+              onClick={() => navigate('/recommendations', { state: { riskTier: primaryRiskTier, riskResult } })}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
             >
               See recommendations

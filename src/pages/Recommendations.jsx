@@ -1,7 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, TrendingUp } from 'lucide-react';
+import api from '../api/axios';
 import Navbar from '../components/global/Navbar';
 import RecommendationList from '../components/recommendations/RecommendationList';
 import LoadingState from '../components/recommendations/states/LoadingState';
@@ -9,7 +10,7 @@ import ErrorState from '../components/recommendations/states/ErrorState';
 import useExpandedStock from '../hooks/useExpandedStock';
 import useRecommendations from '../hooks/useRecommendations';
 import useStockSelection from '../hooks/useStockSelection';
-import { getStoredRiskTier } from '../utils/storage';
+import { getStoredQuestionnaireId, getStoredRiskTier, setStoredPortfolio } from '../utils/storage';
 
 export default function Recommendations() {
   const navigate = useNavigate();
@@ -19,6 +20,8 @@ export default function Recommendations() {
   const { recommendations, loading, error } = useRecommendations(riskTier);
   const { selectedSymbols, toggleStock } = useStockSelection();
   const { expandedSymbol, toggleExpandedStock } = useExpandedStock();
+  const [isSubmittingPortfolio, setIsSubmittingPortfolio] = useState(false);
+  const [portfolioError, setPortfolioError] = useState(null);
 
   const stocks = useMemo(() => {
     return Array.isArray(recommendations?.stocks) ? recommendations.stocks : [];
@@ -28,14 +31,38 @@ export default function Recommendations() {
     return stocks.filter((stock) => selectedSymbols.includes(stock.symbol));
   }, [selectedSymbols, stocks]);
 
-  const handleViewPortfolio = () => {
-    const payload = {
-      riskTier,
-      selectedStocks,
-    };
+  const questionnaireId = useMemo(() => {
+    return location.state?.riskResult?.questionnaire_id || location.state?.riskResult?.questionnaireId || getStoredQuestionnaireId();
+  }, [location.state?.riskResult]);
 
-    sessionStorage.setItem('selectedRecommendationStocks', JSON.stringify(payload));
-    navigate('/portfolio', { state: payload });
+  const handleViewPortfolio = async () => {
+    if (!questionnaireId) {
+      setPortfolioError('Questionnaire ID is unavailable. Please complete the questionnaire again.');
+      return;
+    }
+
+    try {
+      setIsSubmittingPortfolio(true);
+      setPortfolioError(null);
+
+      const response = await api.post('/portfolio', {
+        questionnaire_id: questionnaireId,
+        symbols: selectedSymbols,
+      });
+
+      const portfolio = response.data || null;
+
+      if (portfolio) {
+        setStoredPortfolio(portfolio);
+      }
+
+      navigate('/portfolio', { state: { portfolio } });
+    } catch (err) {
+      console.error('Failed to create portfolio:', err);
+      setPortfolioError('Failed to create portfolio. Please try again.');
+    } finally {
+      setIsSubmittingPortfolio(false);
+    }
   };
 
   return (
@@ -100,6 +127,12 @@ export default function Recommendations() {
             </div>
           )}
 
+          {portfolioError && (
+            <div className="mt-6 rounded-2xl border border-red-400/30 bg-red-500/10 p-4 text-sm text-red-100">
+              {portfolioError}
+            </div>
+          )}
+
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-between">
             <button
               type="button"
@@ -112,11 +145,11 @@ export default function Recommendations() {
 
             <button
               type="button"
-              disabled={selectedStocks.length === 0}
+              disabled={selectedStocks.length === 0 || isSubmittingPortfolio}
               onClick={handleViewPortfolio}
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
             >
-              View my portfolio
+              {isSubmittingPortfolio ? 'Creating portfolio...' : 'View my portfolio'}
             </button>
           </div>
         </motion.div>
