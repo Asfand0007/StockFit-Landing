@@ -1,10 +1,12 @@
 import Steps from "./workSection/Steps"
 import Ticker from "./workSection/Ticker";
+import { useNavigate } from "react-router-dom";
 import { motion, useReducedMotion } from "framer-motion";
 
 export default function WorksSection({ animateIn = true }) {
     const prefersReducedMotion = useReducedMotion();
     const offsetY = prefersReducedMotion ? 0 : 18;
+    const navigate = useNavigate();
 
     const reveal = (delay = 0) => ({
         initial: { opacity: 0, y: offsetY },
@@ -59,7 +61,9 @@ export default function WorksSection({ animateIn = true }) {
                 <p className="mt-4 text-gray-600 max-w-xl text-sm text-center leading-relaxed">
                     StockFit simplifies investing in the Pakistan Stock Exchange by combining risk profiling with intelligent optimization — everything tailored for you.
                 </p>
-                <button className="w-auto bg-secondary-dark text-white px-6 py-2.5 rounded-full cursor-pointer flex items-center justify-center gap-1 hover:bg-secondary transition-colors text-sm">
+                <button
+                    onClick={() => navigate('/signup')}
+                    className="w-auto bg-secondary-dark text-white px-6 py-2.5 rounded-full cursor-pointer flex items-center justify-center gap-1 hover:bg-secondary transition-colors text-sm">
                     Get Your Profile Started
                 </button>
             </motion.div>

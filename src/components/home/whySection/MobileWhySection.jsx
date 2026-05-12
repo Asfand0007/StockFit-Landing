@@ -1,8 +1,9 @@
 import { Fragment, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function MobileWhySection({ reasons }) {
     const scrollRef = useRef(null);
-
+    const navigate = useNavigate();
     // duplicate for infinite loop
     const loopReasons = [...reasons, ...reasons];
 
@@ -67,7 +68,7 @@ export default function MobileWhySection({ reasons }) {
                     ensuring every investment decision is data-driven and aligned with your goals.
                 </p>
 
-                <button className="mt-3 bg-primary text-white px-6 py-2.5 rounded-full flex items-center gap-1 hover:bg-secondary text-sm">
+                <button onClick={() => navigate('/signup')} className="mt-3 bg-primary text-white px-6 py-2.5 rounded-full flex items-center gap-1 hover:bg-secondary text-sm">
                     Get Your Profile Started
                 </button>
             </div>

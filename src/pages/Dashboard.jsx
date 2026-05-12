@@ -8,12 +8,37 @@ import api from '../api/axios';
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const user = getCurrentUser();
-  const greetingName = user?.name || user?.fullName || user?.email || '';
+  const [user, setUser] = useState(() => getCurrentUser());
   const [portfolios, setPortfolios] = useState([]);
   const [portfolioLoading, setPortfolioLoading] = useState(true);
   const [portfolioError, setPortfolioError] = useState(null);
   const [showAllPortfolios, setShowAllPortfolios] = useState(false);
+
+  const greetingName = useMemo(() => {
+    const firstName = user?.first_name || user?.firstName || '';
+    const lastName = user?.last_name || user?.lastName || '';
+    const fullName = `${firstName}${firstName && lastName ? ' ' : ''}${lastName}`.trim();
+
+    return fullName || user?.name || user?.fullName || user?.email || '';
+  }, [user]);
+
+  useEffect(() => {
+    const syncUser = () => setUser(getCurrentUser());
+
+    const handleStorageChange = (event) => {
+      if (!event.key || event.key === 'user') {
+        syncUser();
+      }
+    };
+
+    window.addEventListener('stockfit-user-updated', syncUser);
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('stockfit-user-updated', syncUser);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchPortfolios = async () => {
@@ -113,7 +138,7 @@ export default function Dashboard() {
     <div className="min-h-screen w-full font-montserrat bg-[#0a0c0b] text-white overflow-hidden">
       <Navbar />
 
-      <div className="relative pt-28 px-6 pb-16 max-w-5xl mx-auto">
+      <div className="relative pt-28 px-6 pb-16 max-w-7xl mx-auto">
         <div className="absolute -right-[14%] -top-[16%] h-105 w-105 rounded-full bg-primary opacity-15 blur-[150px] pointer-events-none" />
         <div className="absolute -left-[12%] bottom-[10%] h-90 w-90 rounded-full bg-secondary opacity-10 blur-[120px] pointer-events-none" />
 
@@ -123,8 +148,8 @@ export default function Dashboard() {
           transition={{ duration: 0.6 }}
           className="relative z-10 mb-12"
         >
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-white to-primary/80 bg-clip-text text-transparent">Dashboard</h1>
-          <p className="text-white/70 mt-3 text-lg">Welcome{greetingName ? `, ${greetingName}` : ''}. Manage your portfolios and refine your investment strategy.</p>
+          <h1 className="ttext-3xl sm:text-4xl md:text-4xl lg:text-5xl leading-none">Dashboard</h1>
+          <p className="text-white mt-3 text-lg">Welcome{greetingName ? `, ${greetingName}` : ''}. Manage your portfolios and refine your investment strategy.</p>
         </motion.div>
 
         {/* New Questionnaire CTA */}

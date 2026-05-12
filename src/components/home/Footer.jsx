@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import Contact from './footer/Contact';
 import { teamMembers, supervisor } from './footer/data';
+import { SHORT_FINANCIAL_DISCLAIMER } from '../../constants/legalContent';
 
 export default function Footer({ animateIn = true }) {
   const footerContainer = {
@@ -73,6 +75,10 @@ export default function Footer({ animateIn = true }) {
         {/* Divider */}
         <div className="h-px bg-secondary mb-8"></div>
 
+        <motion.div variants={footerItem} className="mb-8 rounded-2xl border border-primary/20 bg-secondary/35 p-4 md:p-5">
+          <p className="text-xs md:text-sm leading-relaxed text-gray-700">{SHORT_FINANCIAL_DISCLAIMER}</p>
+        </motion.div>
+
         {/* Bottom */}
         <motion.div
           variants={footerItem}
@@ -80,12 +86,12 @@ export default function Footer({ animateIn = true }) {
         >
           <p>&copy; 2024 StockFit. All rights reserved.</p>
           <div className="flex gap-6">
-            <a href="#" className="hover:text-primary transition-colors">
+            <Link to="/privacy-policy" className="hover:text-primary transition-colors">
               Privacy Policy
-            </a>
-            <a href="#" className="hover:text-primary transition-colors">
-              Terms of Service
-            </a>
+            </Link>
+            <Link to="/terms-conditions" className="hover:text-primary transition-colors">
+              Terms & Conditions
+            </Link>
           </div>
         </motion.div>
       </div>

@@ -8,9 +8,9 @@ export default function NavigationControls({ onPrev, onNext, canPrev, canNext, i
         type="button"
         onClick={onPrev}
         disabled={!canPrev}
-        className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white/80 transition-colors hover:bg-white/5 disabled:cursor-not-allowed disabled:opacity-40"
+        className="inline-flex items-center w-30 justify-center gap-2 text-sm font-semibold bg-white text-black px-5 py-2.5 rounded-full cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
       >
-        <ChevronLeft size={18} />
+        <ChevronLeft className='-ml-2' size={18} />
         Previous
       </button>
 
@@ -18,10 +18,12 @@ export default function NavigationControls({ onPrev, onNext, canPrev, canNext, i
         type="button"
         onClick={onNext}
         disabled={!canNext}
-        className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+        // className="mt-3 pointer-events-auto w-4/5 sm:w-auto text-white px-5 py-2.5 rounded-full bg-primary hover:bg-secondary cursor-pointer flex items-center justify-center gap-1">
+            
+        className="inline-flex items-center min-w-30 justify-center gap-2 text-white px-6 py-2 rounded-full bg-primary hover:bg-secondary cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isLast ? 'Finish questionnaire' : 'Next'}
-        <ChevronRight size={18} />
+        <ChevronRight className='-mr-2' size={18} />
       </button>
     </div>
   );

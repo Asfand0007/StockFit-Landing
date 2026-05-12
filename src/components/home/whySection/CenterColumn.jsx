@@ -4,8 +4,11 @@
 // Props:
 //   reasons      — full reasons array (for dot count + active icons)
 //   activeReason — index of the currently visible scroll segment
+import { useNavigate } from "react-router-dom";
 
 export default function CenterColumn({ reasons, activeReason }) {
+    const navigate = useNavigate();
+
     return (
         <div className="sticky top-0 h-screen flex flex-col items-center justify-center pointer-events-none z-50"
             style={{ left: "33.333%", width: "33.333%" }}
@@ -86,7 +89,9 @@ export default function CenterColumn({ reasons, activeReason }) {
                 StockFit combines personalized risk profiling with advanced optimization, ensuring every investment decision is data-driven and aligned with your goals.
             </p>
             {/* ── CTA ── */}
-            <button className="mt-3 pointer-events-auto w-4/5 sm:w-auto text-white px-5 py-2.5 rounded-full bg-primary hover:bg-secondary cursor-pointer flex items-center justify-center gap-1">
+            <button 
+                onClick={() => navigate('/signup')}
+            className="mt-3 pointer-events-auto w-4/5 sm:w-auto text-white px-5 py-2.5 rounded-full bg-primary hover:bg-secondary cursor-pointer flex items-center justify-center gap-1">
                 Start Risk Assessment
             </button>
         </div>

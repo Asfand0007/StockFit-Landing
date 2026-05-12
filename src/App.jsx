@@ -8,6 +8,8 @@ import QuestionnaireResults from './pages/QuestionnaireResults';
 import Recommendations from './pages/Recommendations';
 import Portfolio from './pages/Portfolio';
 import Settings from './pages/Settings';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsConditions from './pages/TermsConditions';
 import ProtectedRoute from './components/global/ProtectedRoute';
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
       <Route path="/recommendations" element={<ProtectedRoute element={<Recommendations />} />} />
       <Route path="/portfolio" element={<ProtectedRoute element={<Portfolio />} />} />
       <Route path="/settings" element={<ProtectedRoute element={<Settings />} />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/terms-conditions" element={<TermsConditions />} />
     </Routes>
   );
 }

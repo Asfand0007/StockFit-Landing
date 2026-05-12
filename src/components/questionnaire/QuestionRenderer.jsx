@@ -8,15 +8,16 @@ function OptionButton({ option, isActive, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className={`w-full rounded-2xl border p-4 text-left transition-all duration-200 ${
+      // rounded-lg border border-white/10 bg-black/15 px-4 py-4 text-white outline-none transition-colors placeholder:text-white/35
+      className={`w-full rounded-2xl border px-4 py-3 text-left transition-all duration-200 ${
         isActive
-          ? 'border-primary/50 bg-primary/10 shadow-[0_0_0_1px_rgba(105,179,157,0.12)]'
+          ? 'border-[#69b39d73] bg-[#69b39d0d] '
           : 'border-white/10 bg-black/15 hover:bg-white/5 hover:border-white/20'
       }`}
     >
       <div className="flex items-start gap-4">
         <div
-          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+          className={`mt-0 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
             isActive ? 'border-primary bg-primary' : 'border-white/30'
           }`}
         >
@@ -24,7 +25,7 @@ function OptionButton({ option, isActive, onClick }) {
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <p className="font-semibold text-white">{option.label}</p>
+            <p className="text-sm text-white">{option.label}</p>
           </div>
         </div>
       </div>
@@ -40,7 +41,7 @@ export default function QuestionRenderer({ questionData, selectedValue, onSelect
 
     return (
       <div className="space-y-3">
-        <label className="block text-sm font-medium text-white/70" htmlFor={inputId}>
+        <label className="block text-base text-white" htmlFor={inputId}>
           {isTimelineQuestion ? 'Enter your timeline in months' : 'Enter your answer'}
         </label>
         <input
@@ -49,7 +50,7 @@ export default function QuestionRenderer({ questionData, selectedValue, onSelect
           inputMode="decimal"
           value={selectedValue}
           onChange={(e) => onSelect(e.target.value)}
-          className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-4 text-white outline-none transition-colors placeholder:text-white/35 focus:border-primary/60"
+          className="w-full rounded-lg border border-white/10 bg-black/15 px-4 py-4 text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#69b39d73] focus:bg-[#69b39d0d] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           placeholder={isTimelineQuestion ? 'Type months, e.g. 24' : 'Type a number'}
         />
       </div>
@@ -57,11 +58,12 @@ export default function QuestionRenderer({ questionData, selectedValue, onSelect
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {questionData.options.map((option) => (
         <OptionButton
           key={option.value}
           option={option}
+          className="w-full border border-white/10 bg-black/15 px-4 py-3 text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#69b39d73] focus:bg-[#69b39d0d]"
           isActive={selectedValue === option.value}
           onClick={() => onSelect(option.value)}
         />

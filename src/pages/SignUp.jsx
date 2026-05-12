@@ -298,13 +298,23 @@ export default function SignUp() {
               />
               <span className="text-sm text-white/70">
                 I agree to the{' '}
-                <a href="#" className="text-primary hover:text-primary/80 transition-colors">
-                  Terms of Service
-                </a>{' '}
+                <Link
+                  to="/terms-conditions"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary hover:text-primary/80 transition-colors"
+                >
+                  Terms & Conditions
+                </Link>{' '}
                 and{' '}
-                <a href="#" className="text-primary hover:text-primary/80 transition-colors">
+                <Link
+                  to="/privacy-policy"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-primary hover:text-primary/80 transition-colors"
+                >
                   Privacy Policy
-                </a>
+                </Link>
               </span>
             </label>
 
