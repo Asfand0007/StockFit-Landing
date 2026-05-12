@@ -133,7 +133,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full mt-4 bg-primary text-black font-semibold py-3 rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group disabled:opacity-60"
+            className="w-full mt-4 bg-primary text-black font-semibold py-3 rounded-xl hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 group disabled:opacity-60 cursor-pointer disabled:cursor-not-allowed"
           >
             {loading ? 'Signing in...' : 'Sign In'}
             <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />

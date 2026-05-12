@@ -25,8 +25,13 @@ function deleteCookie(name) {
   document.cookie = `${name}=; Expires=${new Date(0).toUTCString()}; Path=/; SameSite=Strict`;
 }
 
-export async function signup({ fullName, email, password }) {
-  const payload = { name: fullName, email, password };
+export async function signup({ firstName, lastName, email, password }) {
+  const payload = {
+    email,
+    password,
+    first_name: firstName,
+    last_name: lastName,
+  };
   const res = await api.post('/auth/signup', payload);
   const token = extractToken(res.data);
   // Store JWT token in secure, HttpOnly-equivalent cookie only (removed localStorage for XSS protection)

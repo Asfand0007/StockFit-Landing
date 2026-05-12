@@ -9,7 +9,8 @@ export default function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -79,9 +80,18 @@ export default function SignUp() {
               setError('You must agree to the terms');
               return;
             }
+            if (!formData.firstName.trim() || !formData.lastName.trim()) {
+              setError('First name and last name are required');
+              return;
+            }
             setLoading(true);
             try {
-              await signupRequest(formData);
+              await signupRequest({
+                firstName: formData.firstName.trim(),
+                lastName: formData.lastName.trim(),
+                email: formData.email.trim(),
+                password: formData.password,
+              });
               navigate('/login');
             } catch (err) {
               console.error(err);
@@ -91,19 +101,38 @@ export default function SignUp() {
             }
           }}
         >
-          <div className="relative">
-            <label className="text-sm font-semibold text-white/80 mb-2 block">Full Name</label>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="relative">
-              <input
-                type="text"
-                name="fullName"
-                value={formData.fullName}
-                onChange={handleChange}
-                placeholder="John Doe"
-                className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
-              />
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
-                <User className="text-primary/60" size={20} />
+              <label className="text-sm font-semibold text-white/80 mb-2 block">First Name</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  placeholder="John"
+                  className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
+                />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                  <User className="text-primary/60" size={20} />
+                </div>
+              </div>
+            </div>
+
+            <div className="relative">
+              <label className="text-sm font-semibold text-white/80 mb-2 block">Last Name</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  placeholder="Doe"
+                  className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
+                />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                  <User className="text-primary/60" size={20} />
+                </div>
               </div>
             </div>
           </div>
@@ -224,14 +253,14 @@ export default function SignUp() {
           <button
             type="submit"
             disabled={!agreedToTerms || loading}
-            className="w-full mt-4 bg-primary text-black font-semibold py-3 rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 group"
+            className="w-full mt-4 bg-primary text-black font-semibold py-3 rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors flex items-center justify-center gap-2 group"
           >
             {loading ? 'Creating...' : 'Create Account'}
             <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
           </button>
         </motion.form>
 
-        <motion.div variants={itemVariants} className="text-center">
+        <motion.div variants={itemVariants} className="text-center mt-2">
           <p className="text-white/70">
             Already have an account?{' '}
             <Link to="/login" className="text-primary hover:text-primary/80 font-semibold transition-colors">
