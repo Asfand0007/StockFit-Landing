@@ -216,11 +216,11 @@ export default function Portfolio() {
             {fromRecommendations && (
               <button
                 type="button"
-                onClick={() => navigate('/recommendations', { state: { riskTier } })}
+                onClick={() => navigate('/dashboard', { state: { riskTier } })}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white/80 transition-colors hover:bg-white/5"
               >
                 <ArrowLeft size={18} />
-                Back to recommendations
+                Back to Dashboard
               </button>
             )}
           </div>

@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { ArrowUpRight, Mail, Lock, User, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { getTokenFromCookie } from '../services/auth';
 import { signup as signupRequest } from '../services/auth';
 
 export default function SignUp() {
+  const token = getTokenFromCookie();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -19,6 +20,10 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  if (token) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;

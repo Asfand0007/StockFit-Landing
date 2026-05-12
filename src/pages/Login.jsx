@@ -1,16 +1,21 @@
 import { useState } from 'react';
 import { ArrowUpRight, Mail, Lock, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
-import { login as loginRequest } from '../services/auth';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { getTokenFromCookie, login as loginRequest } from '../services/auth';
 
 export default function Login() {
+  const token = getTokenFromCookie();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  if (token) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const containerVariants = {
     hidden: { opacity: 0 },

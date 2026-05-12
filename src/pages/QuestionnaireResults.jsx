@@ -109,13 +109,13 @@ export default function QuestionnaireResults() {
           </div>
 
           <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-            <button
+            {/* <button
               type="button"
               onClick={() => navigate('/questionnaire')}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white/80 transition-colors hover:bg-white/5"
             >
               Back to questionnaire
-            </button>
+            </button> */}
 
             <button
               type="button"

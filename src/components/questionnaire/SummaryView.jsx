@@ -46,8 +46,8 @@ export default function SummaryView({ answers, questionsData, riskResult, isSubm
         </div>
       )}
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-white/10 bg-[#111816]/70 p-5">
+      {/* <div className="mt-8 grid gap-4 md:grid-cols-2"> */}
+        {/* <div className="rounded-2xl border border-white/10 bg-[#111816]/70 p-5">
           <div className="flex items-center gap-2 text-primary mb-3">
             <CheckCircle2 size={18} />
             <p className="text-sm font-semibold uppercase tracking-[0.2em]">Profile summary</p>
@@ -56,9 +56,9 @@ export default function SummaryView({ answers, questionsData, riskResult, isSubm
             <p>{Object.keys(answers).length} of {questionsData.length} questions answered</p>
             <p>All 3 stages completed successfully</p>
           </div>
-        </div>
+        </div> */}
 
-        <div className="rounded-2xl border border-white/10 bg-[#111816]/70 p-5">
+        <div className="rounded-2xl border border-white/10 bg-[#111816]/70 p-5 mt-8">
           <div className="flex items-center gap-2 text-primary mb-3">
             <TrendingUp size={18} />
             <p className="text-sm font-semibold uppercase tracking-[0.2em]">Next step</p>
@@ -68,7 +68,7 @@ export default function SummaryView({ answers, questionsData, riskResult, isSubm
             <p>Use this tier to continue portfolio optimization.</p>
           </div>
         </div>
-      </div>
+      {/* </div> */}
 
       <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
         {questionsData.map((question) => (
@@ -81,19 +81,19 @@ export default function SummaryView({ answers, questionsData, riskResult, isSubm
       </div>
 
       <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-        <button
+        {/* <button
           type="button"
           onClick={onReview}
           className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white/80 transition-colors hover:bg-white/5"
         >
           Review answers
-        </button>
+        </button> */}
 
         <button
           type="button"
           onClick={() => navigate('/questionnaire/results', { state: { riskResult } })}
           disabled={!canProceedToResults}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold cursor-pointer ml-auto text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
         >
           {isSubmitting ? 'Calculating result...' : 'Optimize my portfolio'}
           <TrendingUp size={18} />
