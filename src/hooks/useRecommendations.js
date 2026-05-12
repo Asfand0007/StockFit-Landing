@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
 
-export default function useRecommendations(riskTier) {
+export default function useRecommendations(riskTier, shouldFetch = true) {
   const [recommendations, setRecommendations] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!riskTier) {
+    if (!riskTier || !shouldFetch) {
       setRecommendations(null);
       setError(null);
       setLoading(false);
@@ -46,7 +46,7 @@ export default function useRecommendations(riskTier) {
     return () => {
       ignore = true;
     };
-  }, [riskTier]);
+  }, [riskTier, shouldFetch]);
 
   return {
     recommendations,

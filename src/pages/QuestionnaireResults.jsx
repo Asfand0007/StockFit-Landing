@@ -18,6 +18,11 @@ function getStoredRiskResult() {
 }
 
 function ResultRow({ label, value }) {
+  // Don't render if value is null
+  if (value === null || value === undefined) {
+    return null;
+  }
+
   return (
     <div className="flex items-start justify-between gap-6 border-b border-white/10 py-3 last:border-b-0 last:pb-0">
       <p className="text-sm text-white/60">{label}</p>
@@ -43,13 +48,16 @@ export default function QuestionnaireResults() {
     }
 
     return (
-      riskResult.portfolio_tier ||
-      riskResult.assessed_risk ||
+      (riskResult.portfolio_tier && riskResult.assessed_risk) ? (riskResult.portfolio_tier || riskResult.assessed_risk) :
       riskResult.risk_need_tier ||
       riskResult.risk_capacity_tier ||
       riskResult.behavioral_risk_tier ||
       null
     );
+  }, [riskResult]);
+
+  const hasPrimaryFieldsNull = useMemo(() => {
+    return riskResult && (riskResult.assessed_risk === null || riskResult.portfolio_tier === null);
   }, [riskResult]);
 
   return (
@@ -76,7 +84,21 @@ export default function QuestionnaireResults() {
             Based on your questionnaire, we calculated your risk tier and portfolio signal.
           </p>
 
-          {primaryRiskTier ? (
+          {hasPrimaryFieldsNull ? (
+            <>
+            <div className="mt-8 rounded-2xl border border-red-400/30 bg-red-500/10 p-6">
+              <div className="flex items-start gap-3">
+                <AlertCircle size={18} className="mt-0.5 text-red-400" />
+                <div>
+                  <p className="font-semibold text-red-200">Assessment Warning</p>
+                  <p className="mt-1 text-sm text-red-100/80">
+                    {riskResult?.message || 'Unable to assess risk profile. Please contact support.'}
+                  </p>
+                </div>
+              </div>
+            </div>
+            </>
+          ) : primaryRiskTier ? (
             <div className="mt-8 rounded-2xl border border-primary/30 bg-primary/10 p-6">
               <p className="text-sm uppercase tracking-[0.2em] text-primary/80">Risk tier</p>
               <div className="mt-3 flex items-center gap-3">
@@ -117,15 +139,17 @@ export default function QuestionnaireResults() {
               Back to questionnaire
             </button> */}
 
-            <button
-              type="button"
-              disabled={!primaryRiskTier}
-              onClick={() => navigate('/recommendations', { state: { riskTier: primaryRiskTier, riskResult } })}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
-            >
-              See recommendations
-              <ArrowRight size={18} />
-            </button>
+            {!hasPrimaryFieldsNull && (
+              <button
+                type="button"
+                disabled={!primaryRiskTier}
+                onClick={() => navigate('/recommendations', { state: { riskTier: primaryRiskTier, riskResult } })}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
+              >
+                See recommendations
+                <ArrowRight size={18} />
+              </button>
+            )}
           </div>
         </motion.div>
       </div>

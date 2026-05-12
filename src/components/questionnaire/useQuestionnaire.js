@@ -1,6 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import api, { getCookie } from '../../api/axios';
 
+const TIMELINE_QUESTION_ID = 'investment_time_horizon_years';
+
+function convertMonthsToYears(value) {
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) {
+    return value;
+  }
+
+  const years = numericValue / 12;
+  return String(Number.isFinite(years) ? +years.toFixed(2) : years);
+}
+
 export default function useQuestionnaire(navigate) {
   const [questionsData, setQuestionsData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -174,7 +187,14 @@ export default function useQuestionnaire(navigate) {
           question_string: ans.question_string,
           question_type: ans.question_type,
           question_id_cfa: ans.question_id_cfa,
-          selected_option: ans.selected_option,
+          selected_option:
+            ans.question_id_cfa === TIMELINE_QUESTION_ID && ans.question_type === 'number_input'
+              ? {
+                  ...ans.selected_option,
+                  label: ans.selected_option?.label,
+                  value: convertMonthsToYears(ans.selected_option?.value),
+                }
+              : ans.selected_option,
         })),
       };
 

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AlertCircle, ArrowLeft, TrendingUp } from 'lucide-react';
+import { AlertCircle, ArrowLeft, TrendingUp, CheckCircle2 } from 'lucide-react';
 import api from '../api/axios';
 import Navbar from '../components/global/Navbar';
 import RecommendationList from '../components/recommendations/RecommendationList';
@@ -17,7 +17,13 @@ export default function Recommendations() {
   const location = useLocation();
 
   const riskTier = useMemo(() => location.state?.riskTier || getStoredRiskTier(), [location.state?.riskTier]);
-  const { recommendations, loading, error } = useRecommendations(riskTier);
+  const riskResult = useMemo(() => location.state?.riskResult || null, [location.state?.riskResult]);
+  
+  const insufficientReturnRate = useMemo(() => {
+    return riskResult?.required_rate_of_return !== undefined && riskResult?.required_rate_of_return < 0;
+  }, [riskResult]);
+
+  const { recommendations, loading, error } = useRecommendations(riskTier, !insufficientReturnRate);
   const { selectedSymbols, toggleStock } = useStockSelection();
   const { expandedSymbol, toggleExpandedStock } = useExpandedStock();
   const [isSubmittingPortfolio, setIsSubmittingPortfolio] = useState(false);
@@ -103,6 +109,20 @@ export default function Recommendations() {
             </div>
           )}
 
+          {insufficientReturnRate && (
+            <div className="mt-8 rounded-2xl border border-green-400/30 bg-green-500/10 p-6">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 size={18} className="mt-0.5 text-green-300" />
+                <div>
+                  <p className="font-semibold text-green-200">On track to reach your goal</p>
+                  <p className="mt-1 text-sm text-green-100/80">
+                    With your current savings rate and timeline, you can save up to your desired value. No additional investment returns are needed to meet your financial goals.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {loading && (
             <div className="mt-8 rounded-2xl border border-primary/20 bg-black/20 p-6">
               <LoadingState text="Loading recommendations..." />
@@ -115,7 +135,7 @@ export default function Recommendations() {
             </div>
           )}
 
-          {!loading && !error && riskTier && (
+          {!loading && !error && riskTier && !insufficientReturnRate && (
             <div className="mt-8 space-y-4">
               <RecommendationList
                 stocks={stocks}
@@ -143,14 +163,16 @@ export default function Recommendations() {
               Back to results
             </button>
 
-            <button
-              type="button"
-              disabled={selectedStocks.length === 0 || isSubmittingPortfolio}
-              onClick={handleViewPortfolio}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
-            >
-              {isSubmittingPortfolio ? 'Creating portfolio...' : 'View my portfolio'}
-            </button>
+            {!insufficientReturnRate && (
+              <button
+                type="button"
+                disabled={selectedStocks.length === 0 || isSubmittingPortfolio}
+                onClick={handleViewPortfolio}
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
+              >
+                {isSubmittingPortfolio ? 'Creating portfolio...' : 'View my portfolio'}
+              </button>
+            )}
           </div>
         </motion.div>
       </div>

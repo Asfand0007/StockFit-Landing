@@ -1,6 +1,8 @@
 import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
+const TIMELINE_QUESTION_ID = 'investment_time_horizon_years';
+
 function OptionButton({ option, isActive, onClick }) {
   return (
     <button
@@ -34,10 +36,12 @@ export default function QuestionRenderer({ questionData, selectedValue, onSelect
   if (!questionData) return null;
 
   if (questionData.type === 'number_input') {
+    const isTimelineQuestion = inputId === TIMELINE_QUESTION_ID;
+
     return (
       <div className="space-y-3">
         <label className="block text-sm font-medium text-white/70" htmlFor={inputId}>
-          Enter your answer
+          {isTimelineQuestion ? 'Enter your timeline in months' : 'Enter your answer'}
         </label>
         <input
           id={inputId}
@@ -46,7 +50,7 @@ export default function QuestionRenderer({ questionData, selectedValue, onSelect
           value={selectedValue}
           onChange={(e) => onSelect(e.target.value)}
           className="w-full rounded-2xl border border-white/10 bg-black/15 px-4 py-4 text-white outline-none transition-colors placeholder:text-white/35 focus:border-primary/60"
-          placeholder="Type a number"
+          placeholder={isTimelineQuestion ? 'Type months, e.g. 24' : 'Type a number'}
         />
       </div>
     );
