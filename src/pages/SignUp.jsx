@@ -3,12 +3,24 @@ import { ArrowUpRight, Mail, Lock, User, Eye, EyeOff, ArrowLeft } from 'lucide-r
 import { motion } from 'framer-motion';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { getTokenFromCookie } from '../services/auth';
-import { signup as signupRequest } from '../services/auth';
+import { signup as signupRequest, verifyEmail as verifyEmailRequest } from '../services/auth';
+
+const SIGNUP_STEPS = {
+  register: 'register',
+  verifyEmail: 'verifyEmail',
+};
+
+function getAuthErrorMessage(error, fallback) {
+  return error?.response?.data?.message || error?.response?.data?.detail || error?.message || fallback;
+}
 
 export default function SignUp() {
   const token = getTokenFromCookie();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showVerificationCode, setShowVerificationCode] = useState(false);
+  const [step, setStep] = useState(SIGNUP_STEPS.register);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -16,10 +28,11 @@ export default function SignUp() {
     password: '',
     confirmPassword: '',
   });
+  const [verificationCode, setVerificationCode] = useState('');
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
+  const [success, setSuccess] = useState(null);
 
   if (token) {
     return <Navigate to="/dashboard" replace />;
@@ -46,6 +59,74 @@ export default function SignUp() {
   const passwordStrength =
     formData.password.length >= 8 ? 'strong' : formData.password.length >= 6 ? 'medium' : 'weak';
 
+  const handleRegisterSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      setError('First name and last name are required');
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      return;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (!agreedToTerms) {
+      setError('You must agree to the terms');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await signupRequest({
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        password: formData.password,
+      });
+      setStep(SIGNUP_STEPS.verifyEmail);
+      setSuccess('We sent a verification code to your email.');
+    } catch (err) {
+      console.error(err);
+      setError(getAuthErrorMessage(err, 'Sign up failed'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifySubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+
+    if (!verificationCode.trim()) {
+      setError('Verification code is required');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await verifyEmailRequest({
+        email: formData.email.trim(),
+        code: verificationCode.trim(),
+      });
+      navigate('/dashboard');
+    } catch (err) {
+      console.error(err);
+      setError(getAuthErrorMessage(err, 'Verification failed. Please check your code and try again.'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="relative min-h-dvh w-full font-montserrat bg-[#0a0c0b] text-white overflow-hidden flex items-center justify-center px-4 py-10">
       <div className="absolute -right-[15%] -top-[15%] h-125 w-125 rounded-full bg-primary opacity-15 blur-[150px] pointer-events-none" />
@@ -67,203 +148,244 @@ export default function SignUp() {
           <div className="flex justify-center mb-2">
             <img src="assests/Stockfit-logo.png" alt="StockFit" className="h-12 w-12" />
           </div>
-          <h1 className="text-4xl font-bold mb-2">Get Started</h1>
-          <p className="text-white/60">Create your StockFit account today</p>
+          <h1 className="text-4xl font-bold mb-2">
+            {step === SIGNUP_STEPS.register ? 'Get Started' : 'Verify Email'}
+          </h1>
+          <p className="text-white/60">
+            {step === SIGNUP_STEPS.register
+              ? 'Create your StockFit account today'
+              : `Enter the code sent to ${formData.email.trim()}`}
+          </p>
         </motion.div>
 
-        <motion.form
-          variants={itemVariants}
-          className="space-y-3 mb-0"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setError(null);
-            if (formData.password !== formData.confirmPassword) {
-              setError('Passwords do not match');
-              return;
-            }
-            if (!agreedToTerms) {
-              setError('You must agree to the terms');
-              return;
-            }
-            if (!formData.firstName.trim() || !formData.lastName.trim()) {
-              setError('First name and last name are required');
-              return;
-            }
-            setLoading(true);
-            try {
-              await signupRequest({
-                firstName: formData.firstName.trim(),
-                lastName: formData.lastName.trim(),
-                email: formData.email.trim(),
-                password: formData.password,
-              });
-              navigate('/login');
-            } catch (err) {
-              console.error(err);
-              setError(err?.response?.data?.message || err.message || 'Sign up failed');
-            } finally {
-              setLoading(false);
-            }
-          }}
-        >
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div className="relative">
-              <label className="text-sm font-semibold text-white/80 mb-2 block">First Name</label>
+        {step === SIGNUP_STEPS.register ? (
+          <motion.form variants={itemVariants} className="space-y-3 mb-0" onSubmit={handleRegisterSubmit}>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div className="relative">
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  placeholder="John"
-                  className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
-                />
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
-                  <User className="text-primary/60" size={20} />
+                <label className="text-sm font-semibold text-white/80 mb-2 block">First Name</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    placeholder="John"
+                    className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
+                  />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                    <User className="text-primary/60" size={20} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="relative">
+                <label className="text-sm font-semibold text-white/80 mb-2 block">Last Name</label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    placeholder="Doe"
+                    className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
+                  />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                    <User className="text-primary/60" size={20} />
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="relative">
-              <label className="text-sm font-semibold text-white/80 mb-2 block">Last Name</label>
+              <label className="text-sm font-semibold text-white/80 mb-2 block">Email Address</label>
               <div className="relative">
                 <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
+                  type="email"
+                  name="email"
+                  value={formData.email}
                   onChange={handleChange}
-                  placeholder="Doe"
+                  placeholder="you@example.com"
                   className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
                 />
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
-                  <User className="text-primary/60" size={20} />
+                  <Mail className="text-primary/60" size={20} />
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="relative">
-            <label className="text-sm font-semibold text-white/80 mb-2 block">Email Address</label>
             <div className="relative">
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="you@example.com"
-                className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-4 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
-              />
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
-                <Mail className="text-primary/60" size={20} />
+              <label className="text-sm font-semibold text-white/80 mb-2 block">Password</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-12 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
+                />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                  <Lock className="text-primary/60" size={20} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/60 hover:text-primary transition-colors z-10"
+                >
+                  {showPassword ? <EyeOff size={20} className="cursor-pointer" /> : <Eye size={20} className="cursor-pointer" />}
+                </button>
+              </div>
+
+              {formData.password && (
+                <div className="mt-2 flex gap-1">
+                  <div
+                    className={`h-1 flex-1 rounded-full ${
+                      passwordStrength === 'weak'
+                        ? 'bg-red-500'
+                        : passwordStrength === 'medium'
+                          ? 'bg-yellow-500'
+                          : 'bg-primary'
+                    }`}
+                  />
+                  <div
+                    className={`h-1 flex-1 rounded-full ${
+                      passwordStrength === 'weak'
+                        ? 'bg-secondary/40'
+                        : passwordStrength === 'medium'
+                          ? 'bg-yellow-500'
+                          : 'bg-primary'
+                    }`}
+                  />
+                  <div
+                    className={`h-1 flex-1 rounded-full ${
+                      passwordStrength === 'strong' ? 'bg-primary' : 'bg-secondary/40'
+                    }`}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <label className="text-sm font-semibold text-white/80 mb-2 block">Confirm Password</label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-12 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
+                />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                  <Lock className="text-primary/60" size={20} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/60 hover:text-primary transition-colors z-10"
+                >
+                  {showConfirmPassword ? <EyeOff size={20} className="cursor-pointer" /> : <Eye size={20} className="cursor-pointer" />}
+                </button>
               </div>
             </div>
-          </div>
 
-          <div className="relative">
-            <label className="text-sm font-semibold text-white/80 mb-2 block">Password</label>
-            <div className="relative">
+            <label className="flex items-start gap-3 cursor-pointer mt-4">
               <input
-                type={showPassword ? 'text' : 'password'}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-12 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
+                type="checkbox"
+                checked={agreedToTerms}
+                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                className="w-5 h-5 rounded bg-secondary/50 border border-primary/30 accent-primary mt-0.5"
               />
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
-                <Lock className="text-primary/60" size={20} />
+              <span className="text-sm text-white/70">
+                I agree to the{' '}
+                <a href="#" className="text-primary hover:text-primary/80 transition-colors">
+                  Terms of Service
+                </a>{' '}
+                and{' '}
+                <a href="#" className="text-primary hover:text-primary/80 transition-colors">
+                  Privacy Policy
+                </a>
+              </span>
+            </label>
+
+            {error && <div className="text-sm text-red-400">{error}</div>}
+            {success && <div className="text-sm text-green-400">{success}</div>}
+
+            <button
+              type="submit"
+              disabled={!agreedToTerms || loading}
+              className="w-full mt-4 bg-primary text-black font-semibold py-3 rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors flex items-center justify-center gap-2 group"
+            >
+              {loading ? 'Creating...' : 'Create Account'}
+              <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </button>
+          </motion.form>
+        ) : (
+          <motion.form variants={itemVariants} className="space-y-3 mb-0" onSubmit={handleVerifySubmit}>
+            <div className="relative">
+              <label className="text-sm font-semibold text-white/80 mb-2 block">Email Address</label>
+              <div className="relative">
+                <input
+                  type="email"
+                  value={formData.email}
+                  disabled
+                  className="auth-input w-full bg-secondary/30 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-4 py-3 text-white/70 placeholder-white/40 focus:outline-none"
+                />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                  <Mail className="text-primary/60" size={20} />
+                </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/60 hover:text-primary transition-colors z-10"
-              >
-                {showPassword ? <EyeOff size={20}  className="cursor-pointer" /> : <Eye size={20}  className="cursor-pointer"  />}
-              </button>
             </div>
 
-            {formData.password && (
-              <div className="mt-2 flex gap-1">
-                <div
-                  className={`h-1 flex-1 rounded-full ${
-                    passwordStrength === 'weak'
-                      ? 'bg-red-500'
-                      : passwordStrength === 'medium'
-                        ? 'bg-yellow-500'
-                        : 'bg-primary'
-                  }`}
-                />
-                <div
-                  className={`h-1 flex-1 rounded-full ${
-                    passwordStrength === 'weak'
-                      ? 'bg-secondary/40'
-                      : passwordStrength === 'medium'
-                        ? 'bg-yellow-500'
-                        : 'bg-primary'
-                  }`}
-                />
-                <div
-                  className={`h-1 flex-1 rounded-full ${
-                    passwordStrength === 'strong' ? 'bg-primary' : 'bg-secondary/40'
-                  }`}
-                />
-              </div>
-            )}
-          </div>
-
-          <div className="relative">
-            <label className="text-sm font-semibold text-white/80 mb-2 block">Confirm Password</label>
             <div className="relative">
-              <input
-                type={showConfirmPassword ? 'text' : 'password'}
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-12 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
-              />
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
-                <Lock className="text-primary/60" size={20} />
+              <label className="text-sm font-semibold text-white/80 mb-2 block">Verification Code</label>
+              <div className="relative">
+                <input
+                  type={showVerificationCode ? 'text' : 'password'}
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  placeholder="Enter code"
+                  className="auth-input w-full bg-secondary/40 backdrop-blur-sm border border-primary/20 rounded-xl pl-12 pr-12 py-3 text-white placeholder-white/40 focus:outline-none focus:border-primary/50 focus:bg-secondary/60 transition-all"
+                />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10">
+                  <Lock className="text-primary/60" size={20} />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowVerificationCode((current) => !current)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/60 hover:text-primary transition-colors z-10"
+                  aria-label={showVerificationCode ? 'Hide verification code' : 'Show verification code'}
+                >
+                  {showVerificationCode ? <EyeOff size={20} className="cursor-pointer" /> : <Eye size={20} className="cursor-pointer" />}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/60 hover:text-primary transition-colors z-10"
-              >
-                {showConfirmPassword ? <EyeOff size={20}  className="cursor-pointer" /> : <Eye size={20}  className="cursor-pointer" />}
-              </button>
             </div>
-          </div>
 
-          <label className="flex items-start gap-3 cursor-pointer mt-4">
-            <input
-              type="checkbox"
-              checked={agreedToTerms}
-              onChange={(e) => setAgreedToTerms(e.target.checked)}
-              className="w-5 h-5 rounded bg-secondary/50 border border-primary/30 accent-primary mt-0.5"
-            />
-            <span className="text-sm text-white/70">
-              I agree to the{' '}
-              <a href="#" className="text-primary hover:text-primary/80 transition-colors">
-                Terms of Service
-              </a>{' '}
-              and{' '}
-              <a href="#" className="text-primary hover:text-primary/80 transition-colors">
-                Privacy Policy
-              </a>
-            </span>
-          </label>
+            {error && <div className="text-sm text-red-400">{error}</div>}
+            {success && <div className="text-sm text-green-400">{success}</div>}
 
-          {error && <div className="text-sm text-red-400">{error}</div>}
-          <button
-            type="submit"
-            disabled={!agreedToTerms || loading}
-            className="w-full mt-4 bg-primary text-black font-semibold py-3 rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors flex items-center justify-center gap-2 group"
-          >
-            {loading ? 'Creating...' : 'Create Account'}
-            <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-          </button>
-        </motion.form>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full mt-4 bg-primary text-black font-semibold py-3 rounded-xl hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors flex items-center justify-center gap-2 group"
+            >
+              {loading ? 'Verifying...' : 'Verify Email'}
+              <ArrowUpRight size={18} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setStep(SIGNUP_STEPS.register);
+                setError(null);
+                setSuccess(null);
+              }}
+              className="w-full text-sm text-white/70 hover:text-white transition-colors"
+            >
+              Back to registration
+            </button>
+          </motion.form>
+        )}
 
         <motion.div variants={itemVariants} className="text-center mt-2">
           <p className="text-white/70">

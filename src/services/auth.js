@@ -25,6 +25,17 @@ function deleteCookie(name) {
   document.cookie = `${name}=; Expires=${new Date(0).toUTCString()}; Path=/; SameSite=Strict`;
 }
 
+function persistAuthSession(data) {
+  const token = extractToken(data);
+  if (token) {
+    setCookie('auth_token', token, 7);
+  }
+
+  if (data?.user) {
+    localStorage.setItem('user', JSON.stringify(data.user));
+  }
+}
+
 export async function signup({ firstName, lastName, email, password }) {
   const payload = {
     email,
@@ -33,27 +44,18 @@ export async function signup({ firstName, lastName, email, password }) {
     last_name: lastName,
   };
   const res = await api.post('/auth/signup', payload);
-  const token = extractToken(res.data);
-  // Store JWT token in secure, HttpOnly-equivalent cookie only (removed localStorage for XSS protection)
-  if (token) {
-    setCookie('auth_token', token, 7);
-  }
-  if (res.data?.user) {
-    localStorage.setItem('user', JSON.stringify(res.data.user));
-  }
+  return res.data;
+}
+
+export async function verifyEmail({ email, code }) {
+  const res = await api.post('/auth/verify-email', { email, code });
+  persistAuthSession(res.data);
   return res.data;
 }
 
 export async function login({ email, password }) {
   const res = await api.post('/auth/login', { email, password });
-  const token = extractToken(res.data);
-  // Store JWT token in secure, HttpOnly-equivalent cookie only (removed localStorage for XSS protection)
-  if (token) {
-    setCookie('auth_token', token, 7);
-  }
-  if (res.data?.user) {
-    localStorage.setItem('user', JSON.stringify(res.data.user));
-  }
+  persistAuthSession(res.data);
   return res.data;
 }
 
