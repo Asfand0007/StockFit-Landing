@@ -5,12 +5,32 @@ import { AlertCircle, ArrowLeft, Briefcase, Sparkles, ChevronDown } from 'lucide
 import Navbar from '../components/global/Navbar';
 import { getStoredPortfolio } from '../utils/storage';
 import api from '../api/axios';
+import { groupQuestionnaireItems } from '../utils/questionnaireSections';
 
 function StockPill({ stock }) {
   return (
     <div className="rounded-xl border border-white/10 bg-black/20 px-4 py-3">
       <p className="text-sm font-semibold text-white">{stock.stock_name || 'Unknown stock'}</p>
       <p className="mt-1 text-xs text-primary/80">{stock.symbol || 'N/A'}</p>
+    </div>
+  );
+}
+
+function QuestionnaireSection({ title, items }) {
+  return (
+    <div className="rounded-lg border border-white/10 bg-black/10 p-3">
+      <div className="mb-3 flex items-center justify-between gap-4">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">{title}</p>
+        <p className="text-xs text-white/45">{items.length} questions</p>
+      </div>
+      <div className="space-y-2">
+        {items.map((response) => (
+          <div key={response.question_id || response.questionIdCfa || response.question_string} className="rounded-lg border border-white/5 p-3 bg-black/10">
+            <p className="text-sm font-medium text-white">{response.question_string}</p>
+            <p className="mt-1 text-sm text-primary/80">{response.selected_option?.label ?? response.selected_option?.value ?? '—'}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
@@ -44,6 +64,7 @@ export default function Portfolio() {
   const [qLoading, setQLoading] = useState(false);
   const [qError, setQError] = useState(null);
   const [qOpen, setQOpen] = useState(false);
+  const groupedQuestionnaireResponses = useMemo(() => groupQuestionnaireItems(questionnaire?.responses || []), [questionnaire]);
 
   useEffect(() => {
     const id = portfolio?.questionnaire_id || portfolio?.questionnaireId || portfolio?.questionnaire?.questionnaire_id;
@@ -187,14 +208,15 @@ export default function Portfolio() {
                                 <p className="text-sm font-medium text-white/90">Assessed risk: {questionnaire.assessed_risk || 'N/A'}</p>
                               </div>
 
-                              <div className="space-y-2">
+                              <div className="space-y-3">
                                 {Array.isArray(questionnaire.responses) && questionnaire.responses.length > 0 ? (
-                                  questionnaire.responses.map((r) => (
-                                    <div key={r.question_id} className="rounded-lg border border-white/5 p-3 bg-black/10">
-                                      <p className="text-sm font-medium text-white">{r.question_string}</p>
-                                      <p className="mt-1 text-sm text-primary/80">{r.selected_option?.label ?? r.selected_option?.value ?? '—'}</p>
-                                    </div>
-                                  ))
+                                  groupedQuestionnaireResponses.length > 0 ? (
+                                    groupedQuestionnaireResponses.map((section) => (
+                                      <QuestionnaireSection key={section.id} title={section.title} items={section.items} />
+                                    ))
+                                  ) : (
+                                    <p className="text-sm text-white/65">No answers available for this questionnaire.</p>
+                                  )
                                 ) : (
                                   <p className="text-sm text-white/65">No answers available for this questionnaire.</p>
                                 )}

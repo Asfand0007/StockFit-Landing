@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle2, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { groupQuestionnaireItems } from '../../utils/questionnaireSections';
 
 function SummaryRow({ label, value }) {
   return (
@@ -13,9 +14,30 @@ function SummaryRow({ label, value }) {
   );
 }
 
+function SummarySection({ title, items, answers }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">{title}</p>
+        <p className="text-xs text-white/45">{items.length} questions</p>
+      </div>
+      <div>
+        {items.map((question) => (
+          <SummaryRow
+            key={question.questionIdCfa}
+            label={question.question}
+            value={(answers[question.questionIdCfa] && answers[question.questionIdCfa].selected_option?.label) || 'Not selected'}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function SummaryView({ answers, questionsData, riskResult, isSubmitting, submitError, onRetrySubmit, onReview }) {
   const navigate = useNavigate();
   const canProceedToResults = Boolean(riskResult) && !isSubmitting;
+  const groupedQuestions = groupQuestionnaireItems(questionsData);
 
   return (
     <div className="relative z-10 mx-auto max-w-3xl rounded-[28px] border border-primary/20 bg-secondary/40 backdrop-blur-xl p-8 md:p-10 shadow-2xl shadow-black/20">
@@ -70,13 +92,9 @@ export default function SummaryView({ answers, questionsData, riskResult, isSubm
         </div>
       {/* </div> */}
 
-      <div className="mt-8 rounded-2xl border border-white/10 bg-black/20 p-5">
-        {questionsData.map((question) => (
-          <SummaryRow
-            key={question.questionIdCfa}
-            label={question.question}
-            value={(answers[question.questionIdCfa] && answers[question.questionIdCfa].selected_option?.label) || 'Not selected'}
-          />
+      <div className="mt-8 space-y-4">
+        {groupedQuestions.map((section) => (
+          <SummarySection key={section.id} title={section.title} items={section.items} answers={answers} />
         ))}
       </div>
 

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import api, { getCookie } from '../../api/axios';
+import { QUESTIONNAIRE_SECTIONS } from '../../utils/questionnaireSections';
 
 const TIMELINE_QUESTION_ID = 'investment_time_horizon_years';
 
@@ -57,35 +58,7 @@ export default function useQuestionnaire(navigate) {
     return () => controller.abort();
   }, []);
 
-  const stageDefinitions = [
-    {
-      id: 'risk-need',
-      title: 'Risk Need',
-      questionIds: [
-        'target_future_value',
-        'current_portfolio_value',
-        'annual_net_cash_flow',
-        'investment_time_horizon_years',
-      ],
-    },
-    {
-      id: 'risk-tolerance',
-      title: 'Risk Tolerance',
-      questionIds: ['expects_high_withdrawal_rate', 'has_stable_external_income'],
-    },
-    {
-      id: 'behavioral-loss-tolerance',
-      title: 'Behavioral Loss Tolerance',
-      questionIds: [
-        'willingness_to_take_risk',
-        'safety_vs_return_preference',
-        'financial_knowledge_level',
-        'investment_experience_level',
-        'market_risk_perception',
-        'reaction_to_losses_score',
-      ],
-    },
-  ];
+  const stageDefinitions = QUESTIONNAIRE_SECTIONS;
 
   const stages = useMemo(() => {
     const availableIds = new Set(questionsData.map((q) => q.questionIdCfa));
