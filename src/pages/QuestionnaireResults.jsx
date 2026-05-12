@@ -85,7 +85,6 @@ export default function QuestionnaireResults() {
           </p>
 
           {hasPrimaryFieldsNull ? (
-            <>
             <div className="mt-8 rounded-2xl border border-red-400/30 bg-red-500/10 p-6">
               <div className="flex items-start gap-3">
                 <AlertCircle size={18} className="mt-0.5 text-red-400" />
@@ -96,8 +95,17 @@ export default function QuestionnaireResults() {
                   </p>
                 </div>
               </div>
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+                <button
+                  type="button"
+                  onClick={() => navigate('/questionnaire')}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-400 px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-red-300"
+                >
+                  Retake assessment
+                </button>
+              </div>
             </div>
-            </>
           ) : primaryRiskTier ? (
             <div className="mt-8 rounded-2xl border border-primary/30 bg-primary/10 p-6">
               <p className="text-sm uppercase tracking-[0.2em] text-primary/80">Risk tier</p>
