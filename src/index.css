@@ -9,6 +9,16 @@
   --color-secondary-light: #374a4652;
   --color-secondary-dark: #0f1613;
   --color-background: #fafafa;
+  --color-secondary-background: #0a0c0b;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  background: var(--color-secondary-background);
+  /* overflow-x: hidden; */
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -63,5 +73,22 @@
     font-family: "Montserrat", sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
+  }
+
+  .auth-input {
+    background-color: rgb(55 74 70 / 0.4);
+    color: #fff;
+  }
+
+  .auth-input:-webkit-autofill,
+  .auth-input:-webkit-autofill:hover,
+  .auth-input:-webkit-autofill:focus,
+  .auth-input:-webkit-autofill:active {
+    -webkit-text-fill-color: #fff;
+    caret-color: #fff;
+    box-shadow: 0 0 0 1000px rgb(55 74 70 / 0.55) inset;
+    -webkit-box-shadow: 0 0 0 1000px rgb(55 74 70 / 0.55) inset;
+    border-color: rgb(105 179 157 / 0.5);
+    transition: background-color 9999s ease-out 0s;
   }
 }

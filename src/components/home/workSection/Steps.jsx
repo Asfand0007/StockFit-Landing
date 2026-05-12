@@ -180,7 +180,7 @@ export default function Steps() {
                                     {step.description}
                                 </div>
                                 <h3 className="text-base font-semibold text-secondary-dark flex items-center gap-2">
-                                    <span className="text-xs font-normal text-gray-400">{step.number}</span>
+                                    <span className="text-xs font-normal text-gray-700">{step.number}</span>
                                     {step.title}
                                 </h3>
                             </div>

@@ -18,7 +18,7 @@ export default function WorksSection({ animateIn = true }) {
     });
 
     return (
-        <section className="relative w-full min-h-screen bg-background font-montserrat px-4 sm:px-8 py-12 sm:py-16" data-section="features">
+        <section className="relative w-full min-h-screen bg-background font-montserrat px-4 sm:px-8 py-12 sm:py-16" data-section="how-works">
             {/* Header */}
             <motion.div {...reveal(0.02)} className="flex flex-col justify-center items-center mb-8 sm:mb-10">
                 <span className="inline-block text-xs sm:text-sm rounded-full px-3 py-1 mb-4 text-secondary-dark bg-secondary-light">
@@ -56,7 +56,7 @@ export default function WorksSection({ animateIn = true }) {
             </motion.div>
 
             <motion.div {...reveal(0.1)} className="flex flex-col items-center justify-end gap-4 mb-10 sm:mb-16 px-2">
-                <p className="mt-4 text-gray-500 max-w-xl text-sm text-center leading-relaxed">
+                <p className="mt-4 text-gray-600 max-w-xl text-sm text-center leading-relaxed">
                     StockFit simplifies investing in the Pakistan Stock Exchange by combining risk profiling with intelligent optimization — everything tailored for you.
                 </p>
                 <button className="w-auto bg-secondary-dark text-white px-6 py-2.5 rounded-full cursor-pointer flex items-center justify-center gap-1 hover:bg-secondary transition-colors text-sm">

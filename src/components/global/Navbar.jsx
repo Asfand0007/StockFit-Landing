@@ -5,9 +5,9 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getTokenFromCookie, getCurrentUser, logout } from '../../services/auth';
 
 const navLinks = [
-  { label: 'Home', href: '/' },
+  { label: 'Home', href: '#' },
+  { label: 'How it Works', href: '#', scrollTarget: 'how-works' },
   { label: 'Features', href: '#', scrollTarget: 'features' },
-  { label: 'Contact', href: '/#contact-us', scrollTarget: 'contact-us' },
 ];
 
 // Stagger children for drawer links
@@ -203,7 +203,7 @@ export default function Navbar({ animateIn = true }) {
                 transition={{ delay: 0.08, duration: 0.4 }}
               >
                 <img src="assests/Stockfit-logo.png" alt="logo" className="h-10 w-10" />
-                <span className="font-montserrat text-xl font-bold text-white">Stock Fit</span>
+                <span className="font-montserrat text-xl font-bold text-white">StockFit</span>
               </motion.div>
 
               {/* Nav links */}
@@ -295,7 +295,7 @@ export default function Navbar({ animateIn = true }) {
           {/* Logo */}
           <div className="flex gap-2 items-center justify-start">
             <img src="assests/Stockfit-logo.png" alt="logo" className="h-10 w-10" />
-            <h1 className="text-lg font-bold text-white whitespace-nowrap">Stock Fit</h1>
+            <h1 className="text-lg font-bold text-white whitespace-nowrap">StockFit</h1>
           </div>
 
           {/* Nav links — hidden on mobile and when logged in */}

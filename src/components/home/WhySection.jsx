@@ -23,7 +23,7 @@ export default function WhySection() {
     }, []);
 
     return (
-        <section className="relative font-montserrat" style={{ background: "#0a0c0b" }} data-section="pricing">
+        <section className="relative font-montserrat" style={{ background: "#0a0c0b" }} data-section="features">
 
             {/* ══════════════════════════════════════════
                 DESKTOP — three-column sticky layout
