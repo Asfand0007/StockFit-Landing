@@ -19,7 +19,12 @@ export function createXAxisTickFormatter(timeHorizon, candles) {
     const day = String(date.getDate()).padStart(2, '0');
     const year = date.getFullYear();
 
-    if (timeHorizon === '3d' || timeHorizon === '1y' || timeHorizon === '5y') {
+    if (timeHorizon === '5y') {
+      const shortYear = String(year).slice(-2);
+      return `${month}/${shortYear}`;
+    }
+
+    if (timeHorizon === '3d' || timeHorizon === '1y') {
       return `${day}/${month}`;
     }
 
