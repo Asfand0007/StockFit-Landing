@@ -58,6 +58,11 @@ export default function Recommendations() {
   }, [location.state?.riskResult]);
 
   const handleViewPortfolio = async () => {
+    if (selectedSymbols.length < 3) {
+      setPortfolioError('Please select at least 3 stocks before viewing your portfolio.');
+      return;
+    }
+
     if (!questionnaireId) {
       setPortfolioError('Questionnaire ID is unavailable. Please complete the questionnaire again.');
       return;
@@ -182,7 +187,7 @@ export default function Recommendations() {
             {!insufficientReturnRate && (
               <button
                 type="button"
-                disabled={selectedStocks.length === 0 || isSubmittingPortfolio}
+                disabled={isSubmittingPortfolio}
                 onClick={handleViewPortfolio}
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-black transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:bg-primary/40"
               >
