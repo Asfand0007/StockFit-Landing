@@ -13,6 +13,7 @@ export default function useStockSelection() {
 
   return {
     selectedSymbols,
+    setSelectedSymbols,
     toggleStock,
   };
 }

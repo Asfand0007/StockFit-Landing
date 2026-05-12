@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { AlertCircle, ArrowLeft, TrendingUp, CheckCircle2 } from 'lucide-react';
@@ -24,10 +24,11 @@ export default function Recommendations() {
   }, [riskResult]);
 
   const { recommendations, loading, error } = useRecommendations(riskTier, !insufficientReturnRate);
-  const { selectedSymbols, toggleStock } = useStockSelection();
+  const { selectedSymbols, setSelectedSymbols, toggleStock } = useStockSelection();
   const { expandedSymbol, toggleExpandedStock } = useExpandedStock();
   const [isSubmittingPortfolio, setIsSubmittingPortfolio] = useState(false);
   const [portfolioError, setPortfolioError] = useState(null);
+  const lastAutoSelectedStocksRef = useRef('');
 
   const stocks = useMemo(() => {
     return Array.isArray(recommendations?.stocks) ? recommendations.stocks : [];
@@ -36,6 +37,21 @@ export default function Recommendations() {
   const selectedStocks = useMemo(() => {
     return stocks.filter((stock) => selectedSymbols.includes(stock.symbol));
   }, [selectedSymbols, stocks]);
+
+  useEffect(() => {
+    if (!stocks.length) {
+      return;
+    }
+
+    const stockSignature = stocks.map((stock) => stock.symbol).filter(Boolean).join('|');
+
+    if (!stockSignature || stockSignature === lastAutoSelectedStocksRef.current) {
+      return;
+    }
+
+    lastAutoSelectedStocksRef.current = stockSignature;
+    setSelectedSymbols(stocks.slice(0, 5).map((stock) => stock.symbol).filter(Boolean));
+  }, [setSelectedSymbols, stocks]);
 
   const questionnaireId = useMemo(() => {
     return location.state?.riskResult?.questionnaire_id || location.state?.riskResult?.questionnaireId || getStoredQuestionnaireId();
