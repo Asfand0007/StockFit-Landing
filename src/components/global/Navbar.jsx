@@ -23,35 +23,69 @@ const drawerItem = {
   show: { x: 0, opacity: 1, transition: { ease: [0.22, 1, 0.36, 1], duration: 0.45 } },
 };
 
+function getAuthSnapshot() {
+  const token = typeof document !== 'undefined' ? getTokenFromCookie() : null;
+  const currentUser = token ? getCurrentUser() : null;
+
+  const firstName = currentUser?.first_name || '';
+  const lastName = currentUser?.last_name || '';
+  const displayName = `${firstName}${firstName && lastName ? ' ' : ''}${lastName}`.trim() || 'User';
+
+  return {
+    isLoggedIn: !!token,
+    user: currentUser,
+    displayName,
+  };
+}
+
 export default function Navbar({ animateIn = true }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
+  const [{ isLoggedIn: initialLoggedIn, user: initialUser, displayName: initialDisplayName }] = useState(getAuthSnapshot);
+  const [isLoggedIn, setIsLoggedIn] = useState(initialLoggedIn);
+  const [user, setUser] = useState(initialUser);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const [activeSection, setActiveSection] = useState('home');
   const isDashboardRoute = location.pathname.startsWith('/dashboard');
-  const [displayName, setDisplayName] = useState('User');
+  const [displayName, setDisplayName] = useState(initialDisplayName);
 
   useEffect(() => {
-    // Check if user is logged in
-    const token = getTokenFromCookie();
-    setIsLoggedIn(!!token);
+    const syncAuthState = () => {
+      const token = getTokenFromCookie();
+      setIsLoggedIn(!!token);
 
-    if (token) {
-      const currentUser = getCurrentUser();
-      setUser(currentUser);
+      if (token) {
+        const currentUser = getCurrentUser();
+        setUser(currentUser);
 
-      const firstName = currentUser?.first_name || '';
-      const lastName = currentUser?.last_name || '';
-      const name = `${firstName}${firstName && lastName ? ' ' : ''}${lastName}`.trim();
-      setDisplayName(name || 'User');
-    } else {
-      setUser(null);
-      setDisplayName('User');
-    }
+        const firstName = currentUser?.first_name || '';
+        const lastName = currentUser?.last_name || '';
+        const name = `${firstName}${firstName && lastName ? ' ' : ''}${lastName}`.trim();
+        setDisplayName(name || 'User');
+      } else {
+        setUser(null);
+        setDisplayName('User');
+      }
+    };
+
+    syncAuthState();
+
+    const handleUserUpdated = () => syncAuthState();
+    const handleStorageChange = (event) => {
+      if (event.key === 'user' || event.key === 'auth_token') {
+        syncAuthState();
+      }
+    };
+
+    window.addEventListener('stockfit-user-updated', handleUserUpdated);
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('stockfit-user-updated', handleUserUpdated);
+      window.removeEventListener('storage', handleStorageChange);
+    };
   }, []);
 
   // Close dropdown when clicking outside
@@ -145,6 +179,11 @@ export default function Navbar({ animateIn = true }) {
   const handleQuestionnaire = () => {
     setDropdownOpen(false);
     navigate('/questionnaire');
+  };
+
+  const handleSettings = () => {
+    setDropdownOpen(false);
+    navigate('/settings');
   };
 
   return (
@@ -256,6 +295,11 @@ export default function Navbar({ animateIn = true }) {
                       Fill Questionnaire
                     </button>
                     <button 
+                      onClick={() => handleSettings()}
+                      className="w-full text-white border border-white/20 px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
+                      Settings
+                    </button>
+                    <button 
                       onClick={() => handleLogout()}
                       className="w-full text-white px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
                       Logout
@@ -356,6 +400,11 @@ export default function Navbar({ animateIn = true }) {
                         onClick={handleQuestionnaire}
                         className="w-full cursor-pointer text-left px-4 py-3 text-white hover:bg-white/10 transition-colors border-t border-white/10 whitespace-nowrap">
                         Fill Questionnaire
+                      </button>
+                      <button
+                        onClick={handleSettings}
+                        className="w-full cursor-pointer text-left px-4 py-3 text-white hover:bg-white/10 transition-colors border-t border-white/10 whitespace-nowrap">
+                        Settings
                       </button>
                       <button
                         onClick={handleLogout}

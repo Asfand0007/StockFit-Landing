@@ -33,6 +33,9 @@ function persistAuthSession(data) {
 
   if (data?.user) {
     localStorage.setItem('user', JSON.stringify(data.user));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('stockfit-user-updated'));
+    }
   }
 }
 
@@ -77,4 +80,30 @@ export function getCurrentUser() {
 
 export function getTokenFromCookie() {
   return getCookie('auth_token');
+}
+
+export async function changePassword({ current_password, new_password }) {
+  const res = await api.post('/auth/change-password', {
+    current_password,
+    new_password,
+  });
+  return res.data;
+}
+
+export async function updateProfile({ email, first_name, last_name }) {
+  const res = await api.patch('/auth/me', {
+    email,
+    first_name,
+    last_name,
+  });
+
+  const updatedUser = res.data?.user || res.data;
+  if (updatedUser) {
+    localStorage.setItem('user', JSON.stringify(updatedUser));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('stockfit-user-updated'));
+    }
+  }
+
+  return res.data;
 }

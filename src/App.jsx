@@ -7,6 +7,7 @@ import Questionnaire from './pages/Questionnaire';
 import QuestionnaireResults from './pages/QuestionnaireResults';
 import Recommendations from './pages/Recommendations';
 import Portfolio from './pages/Portfolio';
+import Settings from './pages/Settings';
 import ProtectedRoute from './components/global/ProtectedRoute';
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
       <Route path="/questionnaire/results" element={<ProtectedRoute element={<QuestionnaireResults />} />} />
       <Route path="/recommendations" element={<ProtectedRoute element={<Recommendations />} />} />
       <Route path="/portfolio" element={<ProtectedRoute element={<Portfolio />} />} />
+      <Route path="/settings" element={<ProtectedRoute element={<Settings />} />} />
     </Routes>
   );
 }
