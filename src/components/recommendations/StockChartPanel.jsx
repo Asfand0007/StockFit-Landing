@@ -29,25 +29,25 @@ export default function StockChartPanel({ stock }) {
   const tickFormatter = useMemo(() => createXAxisTickFormatter(timeHorizon, candles), [timeHorizon, candles]);
 
   return (
-    <div className="mt-4 rounded-2xl border border-primary/15 bg-black/25 p-4 sm:p-5">
+    <div className="mt-3 pt-3 border-t border-white/10">
       {!loading && !error && candles.length > 0 && <StockStats {...stats} />}
 
       <TimeHorizonSelector selectedHorizon={timeHorizon} onSelect={setTimeHorizon} />
 
       {loading ? (
-        <div className="mt-5">
+        <div className="mt-4">
           <LoadingState text="Loading chart data..." />
         </div>
       ) : error ? (
-        <div className="mt-5">
+        <div className="mt-4">
           <ErrorState message={error} />
         </div>
       ) : candles.length > 0 ? (
-        <div className="mt-5 h-72 rounded-2xl border border-white/10 bg-[#070a09] p-3">
+        <div className="mt-4 h-72 bg-[#070a09] p-3">
           <StockChart data={candles} tickFormatter={tickFormatter} />
         </div>
       ) : (
-        <div className="mt-5">
+        <div className="mt-4">
           <EmptyState message={`No candle data returned for the ${timeHorizon} horizon.`} />
         </div>
       )}

@@ -7,7 +7,7 @@ export default function RecommendationList({ stocks, selectedSymbols, expandedSy
   }
 
   return (
-    <div className="space-y-4">
+    <div className="divide-y divide-white/10">
       {stocks.map((stock, index) => (
         <RecommendationRow
           key={`${stock.symbol || 'stock'}-${index}`}
