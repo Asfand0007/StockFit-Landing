@@ -175,7 +175,7 @@ export default function Portfolio() {
                         <p className="text-sm text-primary/80">{item.symbol || "N/A"}</p>
                       </div>
                       <p className="text-base font-semibold text-primary shrink-0">
-                        {item.allocation_percentage ?? 0}%
+                        {(item.allocation_percentage ?? 0).toFixed(2)}%
                       </p>
                     </div>
                   ))
@@ -184,7 +184,7 @@ export default function Portfolio() {
                 )}
               </div>
 
-              <p className="mt-3 text-sm text-white/45">Total allocation: {totalWeight}%</p>
+              <p className="mt-3 text-sm text-white/45">Total allocation: {totalWeight.toFixed(2)}%</p>
             </div>
 
             {/* Questionnaire accordion */}
