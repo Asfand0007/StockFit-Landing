@@ -252,7 +252,7 @@ export default function Navbar({ animateIn = true }) {
                 initial="hidden"
                 animate="show"
               >
-                {navLinks.map((link, i) => (
+                {!isLoggedIn && navLinks.map((link) => (
                   <motion.div key={link.label} variants={drawerItem}>
                     <Link
                       to={link.href}
@@ -285,23 +285,28 @@ export default function Navbar({ animateIn = true }) {
                 {isLoggedIn ? (
                   <>
                     <button 
+                      onClick={() => { navigate('/'); setMenuOpen(false); }}
+                      className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
+                      Home
+                    </button>
+                    <button 
                       onClick={() => handleDashboard()}
                       className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
                       Dashboard
                     </button>
                     <button 
                       onClick={() => handleQuestionnaire()}
-                      className="w-full text-white border border-white/20 px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
+                      className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
                       Fill Questionnaire
                     </button>
                     <button 
                       onClick={() => handleSettings()}
-                      className="w-full text-white border border-white/20 px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
+                      className="w-full bg-white text-black px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors font-montserrat font-semibold">
                       Settings
                     </button>
                     <button 
                       onClick={() => handleLogout()}
-                      className="w-full text-white px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-[#374a4645] transition-colors font-montserrat">
+                      className="w-full bg-rose-400 text-white px-5 py-3 rounded-full cursor-pointer flex items-center justify-center gap-2 hover:bg-rose-300 transition-colors font-montserrat font-semibold">
                       Logout
                     </button>
                   </>
