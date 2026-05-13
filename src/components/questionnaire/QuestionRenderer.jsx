@@ -2,6 +2,7 @@ import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
 const TIMELINE_QUESTION_ID = 'investment_time_horizon_years';
+const MONETARY_QUESTION_IDS = ['target_future_value', 'current_portfolio_value', 'annual_net_cash_flow'];
 
 function OptionButton({ option, isActive, onClick }) {
   return (
@@ -38,21 +39,37 @@ export default function QuestionRenderer({ questionData, selectedValue, onSelect
 
   if (questionData.type === 'number_input') {
     const isTimelineQuestion = inputId === TIMELINE_QUESTION_ID;
+    const isMonetaryQuestion = MONETARY_QUESTION_IDS.includes(inputId);
 
     return (
       <div className="space-y-3">
         <label className="block text-base text-white" htmlFor={inputId}>
           {isTimelineQuestion ? 'Enter your timeline in months' : 'Enter your answer'}
         </label>
-        <input
-          id={inputId}
-          type="number"
-          inputMode="decimal"
-          value={selectedValue}
-          onChange={(e) => onSelect(e.target.value)}
-          className="w-full rounded-lg border border-white/10 bg-black/15 px-4 py-4 text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#69b39d73] focus:bg-[#69b39d0d] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-          placeholder={isTimelineQuestion ? 'Type months, e.g. 24' : 'Type a number'}
-        />
+        {isMonetaryQuestion ? (
+          <div className="relative flex items-center">
+            <span className="absolute left-4 text-white/70 pointer-events-none text-sm font-medium">Rs.</span>
+            <input
+              id={inputId}
+              type="number"
+              inputMode="decimal"
+              value={selectedValue}
+              onChange={(e) => onSelect(e.target.value)}
+              className="w-full rounded-lg border border-white/10 bg-black/15 pl-12 pr-4 py-4 text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#69b39d73] focus:bg-[#69b39d0d] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              placeholder="Enter amount"
+            />
+          </div>
+        ) : (
+          <input
+            id={inputId}
+            type="number"
+            inputMode="decimal"
+            value={selectedValue}
+            onChange={(e) => onSelect(e.target.value)}
+            className="w-full rounded-lg border border-white/10 bg-black/15 px-4 py-4 text-white outline-none transition-colors placeholder:text-white/35 focus:border-[#69b39d73] focus:bg-[#69b39d0d] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            placeholder={isTimelineQuestion ? 'Type months, e.g. 24' : 'Type a number'}
+          />
+        )}
       </div>
     );
   }
